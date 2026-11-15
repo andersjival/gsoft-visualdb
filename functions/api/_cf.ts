@@ -1,25 +1,24 @@
 export function getCfCredentials(env?: Record<string, any>, accountKeyOrId?: string) {
-  const isGeorge = accountKeyOrId === "george"
-    || accountKeyOrId === "01514e27c0cdd221efd91900be83fb16"
-    || accountKeyOrId === "georgeandersmail"
-    || accountKeyOrId === "georgeandersmail@gmail.com";
+  const isAnders = accountKeyOrId === "anders"
+    || accountKeyOrId === "c45409ee4154cf898c37375b1e96d910"
+    || accountKeyOrId === "andersjival";
 
-  if (isGeorge) {
+  if (isAnders) {
     return {
-      accountId: env?.CLOUDFLARE_ACCOUNT_ID_GEORGE || "01514e27c0cdd221efd91900be83fb16",
-      token: env?.CLOUDFLARE_API_TOKEN_GEORGE || (typeof atob !== "undefined" ? atob("Y2ZhdF91a093SzJmQnNBYThxUXdqVzV6WDNrSkpSNWpxdFZXRDlLS3BUMFJ0NWI3Nzk0YTM=") : ""),
-      key: "george",
-      name: "George Anders",
-      email: "georgeandersmail@gmail.com"
+      accountId: env?.CLOUDFLARE_ACCOUNT_ID_ANDERS || "c45409ee4154cf898c37375b1e96d910",
+      token: env?.CLOUDFLARE_API_TOKEN_ANDERS || (typeof atob !== "undefined" ? atob("Y2ZhdF9rbmttR0l0eTVTcEJUS3U2eU5DRUd2U2xrbnRJbGZKNUtLcjM3bjlNMzFlOWViZmE=") : ""),
+      key: "anders",
+      name: "Anders Jival",
+      email: "andersjival"
     };
   }
 
   return {
-    accountId: env?.CLOUDFLARE_ACCOUNT_ID || "c45409ee4154cf898c37375b1e96d910",
-    token: env?.CLOUDFLARE_API_TOKEN || (typeof atob !== "undefined" ? atob("Y2ZhdF9rbmttR0l0eTVTcEJUS3U2eU5DRUd2U2xrbnRJbGZKNUtLcjM3bjlNMzFlOWViZmE=") : ""),
-    key: "anders",
-    name: "Anders Jival",
-    email: "andersjival"
+    accountId: env?.CLOUDFLARE_ACCOUNT_ID || env?.CLOUDFLARE_ACCOUNT_ID_GEORGE || "01514e27c0cdd221efd91900be83fb16",
+    token: env?.CLOUDFLARE_API_TOKEN || env?.CLOUDFLARE_API_TOKEN_GEORGE || (typeof atob !== "undefined" ? atob("Y2ZhdF91a093SzJmQnNBYThxUXdqVzV6WDNrSkpSNWpxdFZtRDlLS3BUMFJ0NWI3Nzk0YTM=") : ""),
+    key: "george",
+    name: "George Anders",
+    email: "georgeandersmail@gmail.com"
   };
 }
 

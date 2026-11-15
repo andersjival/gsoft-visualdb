@@ -1,7 +1,7 @@
 import { getStoredToken } from "./auth";
 import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, DbPlanMetrics, AccountKey, R2StorageData } from "../types";
 
-let activeAccount: AccountKey = (localStorage.getItem("gsoft_active_account") as AccountKey) || "anders";
+let activeAccount: AccountKey = (localStorage.getItem("gsoft_active_account") as AccountKey) || "george";
 
 export function setActiveAccount(account: AccountKey) {
   activeAccount = account;

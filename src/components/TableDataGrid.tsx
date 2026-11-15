@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { TableColumn } from "../types";
-import { Edit3, Trash2, Braces, Key, Check } from "lucide-react";
+import { Edit3, Trash2, Braces, Key, Check, ShoppingCart } from "lucide-react";
 
 interface TableDataGridProps {
   columns: TableColumn[];
   rows: Record<string, any>[];
+  tableName?: string | null;
   onEditRow: (row: Record<string, any>) => void;
   onDeleteRow: (row: Record<string, any>) => void;
   onInspectJson: (title: string, data: string) => void;
   onCellSave?: (row: Record<string, any>, colName: string, newVal: any) => Promise<void>;
+  onFilterByUser?: (userId: string) => void;
 }
 
 export const TableDataGrid: React.FC<TableDataGridProps> = ({
-  columns, rows, onEditRow, onDeleteRow, onInspectJson, onCellSave
+  columns, rows, tableName, onEditRow, onDeleteRow, onInspectJson, onCellSave, onFilterByUser
 }) => {
   const [editingCell, setEditingCell] = useState<{ rowIdx: number; colName: string; val: string } | null>(null);
   const [savingKey, setSavingKey] = useState<string | null>(null);
@@ -36,16 +38,18 @@ export const TableDataGrid: React.FC<TableDataGridProps> = ({
     setEditingCell(null);
   };
 
+  const isUsersTable = tableName === "registered_users";
+
   return (
     <table className="w-full text-left border-collapse text-xs select-text">
       <thead className="bg-[#1c1c1c] sticky top-0 border-b border-[#2e2e2e] z-10 shadow-sm">
         <tr>
           <th className="p-2.5 px-3 text-neutral-500 font-mono w-12 text-center border-r border-[#2a2a2a]">#</th>
-          <th className="p-2.5 px-3 text-neutral-400 font-medium w-20 text-center border-r border-[#2a2a2a]">Acciones</th>
+          <th className="p-2.5 px-3 text-neutral-400 font-medium w-24 text-center border-r border-[#2a2a2a]">Acciones</th>
           {columns.map((c) => (
             <th key={c.cid} className="p-2.5 px-3.5 text-neutral-300 font-mono font-medium whitespace-nowrap border-r border-[#2a2a2a]/60">
               <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-white">{c.name}</span>
+                <span className={`font-semibold ${c.name === "user_id" ? "text-emerald-400" : "text-white"}`}>{c.name}</span>
                 {c.pk === 1 ? (
                   <span className="text-[10px] text-amber-400 font-sans flex items-center gap-0.5"><Key className="w-2.5 h-2.5" /> pk</span>
                 ) : (
@@ -65,6 +69,15 @@ export const TableDataGrid: React.FC<TableDataGridProps> = ({
               <td className="p-2 px-3 text-center text-neutral-500 font-mono text-[11px] border-r border-[#262626]">{idx + 1}</td>
               <td className="p-2 px-3 text-center whitespace-nowrap border-r border-[#262626]">
                 <div className="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition">
+                  {isUsersTable && onFilterByUser && (
+                    <button
+                      onClick={() => onFilterByUser(row.email || row.phone || row.name)}
+                      title="Ver ventas de este usuario"
+                      className="p-1 text-neutral-400 hover:text-emerald-400 hover:bg-emerald-950/30 rounded"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
+                    </button>
+                  )}
                   <button onClick={() => onEditRow(row)} title="Editar fila completa" className="p-1 text-neutral-400 hover:text-[#3ecf8e] hover:bg-[#3ecf8e]/10 rounded">
                     <Edit3 className="w-3.5 h-3.5" />
                   </button>
@@ -77,14 +90,15 @@ export const TableDataGrid: React.FC<TableDataGridProps> = ({
                 const val = row[c.name];
                 const isEditing = editingCell?.rowIdx === idx && editingCell?.colName === c.name;
                 const isSaving = savingKey === `${idx}_${c.name}`;
+                const isUserIdCol = c.name === "user_id";
 
                 return (
                   <td
                     key={c.cid}
                     onDoubleClick={() => !isJson(val) && setEditingCell({ rowIdx: idx, colName: c.name, val: val === null ? "" : String(val) })}
-                    className={`p-2 px-3.5 max-w-xs truncate font-mono text-neutral-200 border-r border-[#262626]/50 cursor-pointer ${
+                    className={`p-2 px-3.5 max-w-xs truncate font-mono border-r border-[#262626]/50 cursor-pointer ${
                       isSaving ? "bg-[#3ecf8e]/10 ring-1 ring-[#3ecf8e]" : ""
-                    }`}
+                    } ${isUserIdCol ? "text-emerald-300 font-semibold bg-emerald-950/10" : "text-neutral-200"}`}
                     title="Doble clic para editar celda"
                   >
                     {isEditing ? (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table, Search, Layers, Loader2, Users } from "lucide-react";
+import { Table, Search, Layers, Loader2, Users, ShoppingCart } from "lucide-react";
 import { TableSummary } from "../types";
 
 interface TableSidebarProps {
@@ -7,6 +7,7 @@ interface TableSidebarProps {
   selectedTable: string | null;
   onSelectTable: (tableName: string) => void;
   onOpenUsersDirectly?: () => void;
+  onOpenVentasDirectly?: () => void;
   loading: boolean;
 }
 
@@ -15,6 +16,7 @@ export const TableSidebar: React.FC<TableSidebarProps> = ({
   selectedTable,
   onSelectTable,
   onOpenUsersDirectly,
+  onOpenVentasDirectly,
   loading
 }) => {
   const [filter, setFilter] = useState("");
@@ -45,28 +47,50 @@ export const TableSidebar: React.FC<TableSidebarProps> = ({
         </div>
       </div>
 
-      {onOpenUsersDirectly && (
-        <div className="p-2 border-b border-[#262626] bg-[#141414]">
-          <button
-            onClick={onOpenUsersDirectly}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition ${
-              selectedTable === "registered_users"
-                ? "bg-[#3ecf8e]/20 text-[#3ecf8e] border border-[#3ecf8e]/50"
-                : "bg-[#3ecf8e]/10 hover:bg-[#3ecf8e]/15 text-[#3ecf8e] border border-[#3ecf8e]/30"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Users className="w-3.5 h-3.5" />
-              <span>Usuarios Registrados</span>
-            </div>
-            <span className="text-[10px] bg-[#3ecf8e]/20 px-1.5 py-0.5 rounded font-mono">
-              Clientes
-            </span>
-          </button>
+      {/* Accesos Rápidos */}
+      {(onOpenUsersDirectly || onOpenVentasDirectly) && (
+        <div className="p-2 border-b border-[#262626] bg-[#141414] space-y-1">
+          {onOpenUsersDirectly && (
+            <button
+              onClick={onOpenUsersDirectly}
+              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+                selectedTable === "registered_users"
+                  ? "bg-[#3ecf8e]/20 text-[#3ecf8e] border border-[#3ecf8e]/50"
+                  : "bg-[#1c1c1c] hover:bg-[#222] text-neutral-300 border border-[#262626]"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Users className="w-3.5 h-3.5 text-[#3ecf8e]" />
+                <span>Usuarios Registrados</span>
+              </div>
+              <span className="text-[10px] bg-[#292929] px-1.5 py-0.2 rounded font-mono text-neutral-400">
+                Clientes
+              </span>
+            </button>
+          )}
+
+          {onOpenVentasDirectly && (
+            <button
+              onClick={onOpenVentasDirectly}
+              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+                selectedTable === "ventas"
+                  ? "bg-[#3ecf8e]/20 text-[#3ecf8e] border border-[#3ecf8e]/50"
+                  : "bg-[#1c1c1c] hover:bg-[#222] text-neutral-300 border border-[#262626]"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Ventas por Usuario</span>
+              </div>
+              <span className="text-[10px] bg-[#292929] px-1.5 py-0.2 rounded font-mono text-neutral-400">
+                user_id
+              </span>
+            </button>
+          )}
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto max-h-48 lg:max-h-[calc(100vh-210px)] p-2 space-y-0.5 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto max-h-48 lg:max-h-[calc(100vh-230px)] p-2 space-y-0.5 scrollbar-thin">
         {filteredTables.length === 0 ? (
           <p className="text-center text-xs text-neutral-500 py-6">
             {loading ? "Cargando tablas..." : "No hay tablas"}

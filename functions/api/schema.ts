@@ -40,7 +40,13 @@ export const onRequestGet = async (context: any) => {
   try {
     const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
     const res = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env);
-    return new Response(JSON.stringify({ success: true, columns: res.results }), {
+    const hasPk = res.results.some((c: any) => c.pk === 1);
+    const columns = res.results.map((c: any) => {
+      if (!hasPk && c.name === "id") return { ...c, pk: 1 };
+      return c;
+    });
+
+    return new Response(JSON.stringify({ success: true, columns }), {
       headers: { "Content-Type": "application/json" }
     });
   } catch (err: any) {

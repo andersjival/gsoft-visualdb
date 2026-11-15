@@ -69,6 +69,12 @@ export const App: React.FC = () => {
     await db.loadTableData();
   };
 
+  const handleFilterByUser = (userId: string) => {
+    db.setSelectedTable("ventas");
+    db.setSearch(userId);
+    db.setPage(1);
+  };
+
   if (isAuthChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#121212] text-neutral-400">
@@ -104,6 +110,7 @@ export const App: React.FC = () => {
           selectedTable={db.selectedTable}
           onSelectTable={(t) => db.setSelectedTable(t)}
           onOpenUsersDirectly={db.selectedDb?.name === "byfiocr-db" ? () => db.setSelectedTable("registered_users") : undefined}
+          onOpenVentasDirectly={db.selectedDb?.name === "byfiocr-db" ? () => { db.setSelectedTable("ventas"); db.setSearch(""); } : undefined}
           loading={db.loadingTables}
         />
         <TableView
@@ -127,6 +134,7 @@ export const App: React.FC = () => {
           }}
           onInspectJson={(title, data) => setJsonModal({ title, data })}
           onCellSave={handleCellSave}
+          onFilterByUser={handleFilterByUser}
         />
       </div>
 

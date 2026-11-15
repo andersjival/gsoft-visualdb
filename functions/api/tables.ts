@@ -23,7 +23,7 @@ export const onRequestGet = async (context: any) => {
   }
 
   try {
-    const sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name;";
+    const sql = "SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name;";
     const queryRes = await runD1Sql(dbId, sql, [], context.env);
     const tableNames: string[] = queryRes.results.map((r: any) => r.name);
 
@@ -39,7 +39,7 @@ export const onRequestGet = async (context: any) => {
       })
     );
 
-    // Si tiene site_metrics, agregar vista directa de usuarios registrados
+    // Si tiene site_metrics, agregar vista directa de usuarios registrados al inicio
     if (tableNames.includes("site_metrics")) {
       try {
         const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env);

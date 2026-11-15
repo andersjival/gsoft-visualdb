@@ -1,7 +1,7 @@
 import React from "react";
 import { TableColumn } from "../types";
 import { TableDataGrid } from "./TableDataGrid";
-import { Plus, Search, Code2, ChevronLeft, ChevronRight, Loader2, RefreshCw, Table as TableIcon } from "lucide-react";
+import { Plus, Search, Code2, ChevronLeft, ChevronRight, Loader2, RefreshCw, Table as TableIcon, DollarSign } from "lucide-react";
 
 interface TableViewProps {
   tableName: string | null;
@@ -21,14 +21,17 @@ interface TableViewProps {
   onDeleteRow: (row: Record<string, any>) => void;
   onInspectJson: (title: string, data: string) => void;
   onCellSave?: (row: Record<string, any>, colName: string, newVal: any) => Promise<void>;
+  onFilterByUser?: (userId: string) => void;
 }
 
 export const TableView: React.FC<TableViewProps> = ({
   tableName, columns, rows, totalRows, page, limit, search, loading,
   onPageChange, onSearchChange, onRefresh, onOpenInsert, onOpenSchema,
-  onEditRow, onDeleteRow, onInspectJson, onCellSave
+  onEditRow, onDeleteRow, onInspectJson, onCellSave, onFilterByUser
 }) => {
   const totalPages = Math.ceil(totalRows / limit) || 1;
+  const isVentas = tableName === "ventas";
+  const ventasTotal = isVentas ? rows.reduce((acc, r) => acc + (Number(r.total) || 0), 0) : 0;
 
   if (!tableName) {
     return (
@@ -50,6 +53,12 @@ export const TableView: React.FC<TableViewProps> = ({
             <span className="text-[11px] font-sans px-2 py-0.5 rounded-full bg-[#262626] text-neutral-400 font-normal">
               {totalRows} filas
             </span>
+            {isVentas && (
+              <span className="flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-300">
+                <DollarSign className="w-3 h-3 text-emerald-400" />
+                Muestra: ₡{ventasTotal.toLocaleString("es-CR")}
+              </span>
+            )}
           </h3>
 
           <button
@@ -68,8 +77,8 @@ export const TableView: React.FC<TableViewProps> = ({
               type="text"
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Buscar en tabla..."
-              className="pl-8 pr-3 py-1.5 bg-[#1f1f1f] border border-[#333] rounded-lg text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#3ecf8e] w-36 sm:w-48"
+              placeholder={isVentas ? "Filtrar por user_id, cliente..." : "Buscar en tabla..."}
+              className="pl-8 pr-3 py-1.5 bg-[#1f1f1f] border border-[#333] rounded-lg text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#3ecf8e] w-40 sm:w-56"
             />
           </div>
           <button
@@ -100,10 +109,12 @@ export const TableView: React.FC<TableViewProps> = ({
           <TableDataGrid
             columns={columns}
             rows={rows}
+            tableName={tableName}
             onEditRow={onEditRow}
             onDeleteRow={onDeleteRow}
             onInspectJson={onInspectJson}
             onCellSave={onCellSave}
+            onFilterByUser={onFilterByUser}
           />
         )}
       </div>

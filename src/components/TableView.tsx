@@ -1,7 +1,7 @@
 import React from "react";
 import { TableColumn } from "../types";
 import { TableDataGrid } from "./TableDataGrid";
-import { Plus, Search, Code2, ChevronLeft, ChevronRight, Loader2, RefreshCw, Users, Table as TableIcon } from "lucide-react";
+import { Plus, Search, Code2, ChevronLeft, ChevronRight, Loader2, RefreshCw, Table as TableIcon } from "lucide-react";
 
 interface TableViewProps {
   tableName: string | null;
@@ -20,31 +20,28 @@ interface TableViewProps {
   onEditRow: (row: Record<string, any>) => void;
   onDeleteRow: (row: Record<string, any>) => void;
   onInspectJson: (title: string, data: string) => void;
+  onCellSave?: (row: Record<string, any>, colName: string, newVal: any) => Promise<void>;
 }
 
 export const TableView: React.FC<TableViewProps> = ({
   tableName, columns, rows, totalRows, page, limit, search, loading,
   onPageChange, onSearchChange, onRefresh, onOpenInsert, onOpenSchema,
-  onEditRow, onDeleteRow, onInspectJson
+  onEditRow, onDeleteRow, onInspectJson, onCellSave
 }) => {
   const totalPages = Math.ceil(totalRows / limit) || 1;
-  const isMetricsTable = tableName === "site_metrics";
-
-  // Buscar fila de app_registered_users si estamos en site_metrics
-  const usersRow = isMetricsTable ? rows.find(r => r.id === "app_registered_users") : null;
 
   if (!tableName) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-12 text-neutral-500 bg-[#121212]">
         <TableIcon className="w-10 h-10 mb-2 text-neutral-600" />
-        <p className="text-sm">Selecciona una tabla en el menú lateral para explorar registros</p>
+        <p className="text-sm">Selecciona una tabla en el menú lateral para explorar y editar registros</p>
       </div>
     );
   }
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-[#121212] overflow-hidden border-t sm:border-t-0 sm:border-l border-[#262626]">
-      {/* Supabase Controls Bar */}
+      {/* Top Controls Bar */}
       <div className="p-3 sm:px-4 border-b border-[#262626] flex flex-wrap items-center justify-between gap-3 bg-[#171717]">
         <div className="flex items-center gap-2.5">
           <TableIcon className="w-4 h-4 text-[#3ecf8e]" />
@@ -54,16 +51,6 @@ export const TableView: React.FC<TableViewProps> = ({
               {totalRows} filas
             </span>
           </h3>
-
-          {usersRow && (
-            <button
-              onClick={() => onInspectJson("Usuarios Registrados (app_registered_users)", usersRow.data)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-[#3ecf8e]/20 hover:bg-[#3ecf8e]/30 text-[#3ecf8e] border border-[#3ecf8e]/40 transition shadow-sm animate-pulse"
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Ver Usuarios Registrados</span>
-            </button>
-          )}
 
           <button
             onClick={onOpenSchema}
@@ -102,7 +89,7 @@ export const TableView: React.FC<TableViewProps> = ({
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Grid Table */}
       <div className="flex-1 overflow-auto scrollbar-thin bg-[#121212]">
         {loading && rows.length === 0 ? (
           <div className="flex items-center justify-center p-12 text-neutral-400 gap-2">
@@ -116,6 +103,7 @@ export const TableView: React.FC<TableViewProps> = ({
             onEditRow={onEditRow}
             onDeleteRow={onDeleteRow}
             onInspectJson={onInspectJson}
+            onCellSave={onCellSave}
           />
         )}
       </div>

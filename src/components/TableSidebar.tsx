@@ -45,25 +45,27 @@ export const TableSidebar: React.FC<TableSidebarProps> = ({
         </div>
       </div>
 
-      {/* Acceso Rápido Especial a Usuarios */}
       {onOpenUsersDirectly && (
         <div className="p-2 border-b border-[#262626] bg-[#141414]">
           <button
             onClick={onOpenUsersDirectly}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-[#3ecf8e]/10 hover:bg-[#3ecf8e]/20 text-[#3ecf8e] border border-[#3ecf8e]/30 transition"
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition ${
+              selectedTable === "registered_users"
+                ? "bg-[#3ecf8e]/20 text-[#3ecf8e] border border-[#3ecf8e]/50"
+                : "bg-[#3ecf8e]/10 hover:bg-[#3ecf8e]/15 text-[#3ecf8e] border border-[#3ecf8e]/30"
+            }`}
           >
             <div className="flex items-center gap-2">
               <Users className="w-3.5 h-3.5" />
               <span>Usuarios Registrados</span>
             </div>
             <span className="text-[10px] bg-[#3ecf8e]/20 px-1.5 py-0.5 rounded font-mono">
-              Vista Supabase
+              Clientes
             </span>
           </button>
         </div>
       )}
 
-      {/* Lista de Tablas */}
       <div className="flex-1 overflow-y-auto max-h-48 lg:max-h-[calc(100vh-210px)] p-2 space-y-0.5 scrollbar-thin">
         {filteredTables.length === 0 ? (
           <p className="text-center text-xs text-neutral-500 py-6">

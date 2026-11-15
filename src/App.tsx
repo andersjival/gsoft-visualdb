@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getStoredToken, clearStoredToken, verifyToken } from "./services/auth";
 import { useVisualDB } from "./hooks/useVisualDB";
-import { mutateRow, fetchTableData } from "./services/api";
+import { mutateRow } from "./services/api";
 import { LoginModal } from "./components/LoginModal";
 import { Navbar } from "./components/Navbar";
 import { ProjectSelector } from "./components/ProjectSelector";
@@ -43,16 +43,18 @@ export const App: React.FC = () => {
     initAuth();
   }, []);
 
-  const handleOpenUsersDirectly = async () => {
-    if (!db.selectedDb) return;
-    try {
-      db.setSelectedTable("site_metrics");
-      const res = await fetchTableData({ dbId: db.selectedDb.uuid, table: "site_metrics", limit: 50 });
-      const userRow = res.rows.find((r: any) => r.id === "app_registered_users");
-      if (userRow?.data) {
-        setJsonModal({ title: "Usuarios Registrados (Clientes by.fio)", data: userRow.data });
-      }
-    } catch {}
+  const handleCellSave = async (row: Record<string, any>, colName: string, newVal: any) => {
+    if (!db.selectedDb || !db.selectedTable) return;
+    const pk = db.columns.find((c) => c.pk === 1) || db.columns[0];
+    await mutateRow({
+      dbId: db.selectedDb.uuid,
+      table: db.selectedTable,
+      action: "update",
+      record: { [colName]: newVal },
+      pkColumn: pk.name,
+      pkValue: row[pk.name]
+    });
+    await db.loadTableData();
   };
 
   const handleSaveEdit = async (record: Record<string, any>, pkCol: string, pkVal: any) => {
@@ -101,7 +103,7 @@ export const App: React.FC = () => {
           tables={db.tables}
           selectedTable={db.selectedTable}
           onSelectTable={(t) => db.setSelectedTable(t)}
-          onOpenUsersDirectly={db.selectedDb?.name === "byfiocr-db" ? handleOpenUsersDirectly : undefined}
+          onOpenUsersDirectly={db.selectedDb?.name === "byfiocr-db" ? () => db.setSelectedTable("registered_users") : undefined}
           loading={db.loadingTables}
         />
         <TableView
@@ -124,6 +126,7 @@ export const App: React.FC = () => {
             if (window.confirm(`¿Eliminar registro con ${pk.name} = "${row[pk.name]}"?`)) db.deleteRow(pk.name, row[pk.name]);
           }}
           onInspectJson={(title, data) => setJsonModal({ title, data })}
+          onCellSave={handleCellSave}
         />
       </div>
 

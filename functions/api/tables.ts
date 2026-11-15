@@ -27,7 +27,6 @@ export const onRequestGet = async (context: any) => {
     const queryRes = await runD1Sql(dbId, sql, [], context.env);
     const tableNames: string[] = queryRes.results.map((r: any) => r.name);
 
-    // Obtener recuentos para cada tabla
     const tables = await Promise.all(
       tableNames.map(async (name) => {
         try {
@@ -39,6 +38,17 @@ export const onRequestGet = async (context: any) => {
         }
       })
     );
+
+    // Si tiene site_metrics, agregar vista directa de usuarios registrados
+    if (tableNames.includes("site_metrics")) {
+      try {
+        const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env);
+        if (uRes.results[0]?.data) {
+          const parsed = JSON.parse(uRes.results[0].data);
+          tables.unshift({ name: "registered_users", rowCount: Array.isArray(parsed) ? parsed.length : 0 });
+        }
+      } catch {}
+    }
 
     return new Response(JSON.stringify({ success: true, tables }), {
       headers: { "Content-Type": "application/json" }

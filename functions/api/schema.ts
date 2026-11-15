@@ -23,6 +23,20 @@ export const onRequestGet = async (context: any) => {
     });
   }
 
+  if (table === "registered_users") {
+    const virtualCols = [
+      { cid: 0, name: "email", type: "TEXT", notnull: 1, dflt_value: null, pk: 1 },
+      { cid: 1, name: "name", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
+      { cid: 2, name: "phone", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
+      { cid: 3, name: "idCard", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
+      { cid: 4, name: "address", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
+      { cid: 5, name: "password", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 }
+    ];
+    return new Response(JSON.stringify({ success: true, columns: virtualCols }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
   try {
     const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
     const res = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env);

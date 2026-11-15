@@ -37,7 +37,7 @@ export const JsonViewerModal: React.FC<JsonViewerModalProps> = ({ title, jsonDat
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="w-full max-w-5xl bg-[#171717] border border-[#2e2e2e] rounded-xl shadow-2xl flex flex-col max-h-[88vh] overflow-hidden">
-        {/* Header tipo Supabase */}
+        {/* Header */}
         <div className="p-3.5 px-5 border-b border-[#2a2a2a] flex items-center justify-between bg-[#1f1f1f]">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
@@ -90,7 +90,7 @@ export const JsonViewerModal: React.FC<JsonViewerModalProps> = ({ title, jsonDat
           </div>
         </div>
 
-        {/* Barra de Filtro para vista tabla */}
+        {/* Filter bar */}
         {isArrayOfObjects && viewMode === "table" && (
           <div className="p-2.5 px-5 border-b border-[#262626] bg-[#141414] flex items-center justify-between">
             <div className="relative w-72">

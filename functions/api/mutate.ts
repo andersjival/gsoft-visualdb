@@ -23,6 +23,39 @@ export const onRequestPost = async (context: any) => {
       });
     }
 
+    // Mutaciones directas sobre Usuarios Registrados
+    if (table === "registered_users") {
+      const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env);
+      let users: any[] = [];
+      if (uRes.results[0]?.data) {
+        users = JSON.parse(uRes.results[0].data);
+      }
+
+      if (action === "update") {
+        const idx = users.findIndex((u: any) => u.email === pkValue || u[pkColumn] === pkValue);
+        if (idx !== -1) {
+          users[idx] = { ...users[idx], ...record };
+        } else {
+          users.push(record);
+        }
+      } else if (action === "insert") {
+        users.push(record);
+      } else if (action === "delete") {
+        users = users.filter((u: any) => u.email !== pkValue && u[pkColumn] !== pkValue);
+      }
+
+      await runD1Sql(
+        dbId,
+        "UPDATE site_metrics SET data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 'app_registered_users';",
+        [JSON.stringify(users)],
+        context.env
+      );
+
+      return new Response(JSON.stringify({ success: true, count: users.length }), {
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
     const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
 
     if (action === "delete") {

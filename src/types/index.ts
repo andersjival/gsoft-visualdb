@@ -48,3 +48,13 @@ export interface AuthState {
   token: string | null;
   user: string | null;
 }
+
+export interface AiApiMetrics {
+  status: string;
+  totalNeuronsToday: number;
+  totalNeuronsMonth: number;
+  totalMessagesAnswered: number;
+  totalChatOpens: number;
+  remainingNeuronsToday: number;
+  serverTimestamp?: string;
+}

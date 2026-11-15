@@ -11,21 +11,21 @@ import { RowEditModal } from "./components/RowEditModal";
 import { RowInsertModal } from "./components/RowInsertModal";
 import { SchemaModal } from "./components/SchemaModal";
 import { SqlConsoleModal } from "./components/SqlConsoleModal";
+import { AiStatusBanner } from "./components/AiStatusBanner";
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(getStoredToken());
   const [user, setUser] = useState<string | null>("Anders Jival");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
 
-  // Modals state
   const [editingRow, setEditingRow] = useState<Record<string, any> | null>(null);
   const [isInserting, setIsInserting] = useState(false);
   const [isViewingSchema, setIsViewingSchema] = useState(false);
   const [isViewingSql, setIsViewingSql] = useState(false);
 
   const db = useVisualDB();
+  const isAiDb = db.selectedDb?.name === "byfio-agent-db" || (db.selectedDb?.name.includes("agent") ?? false);
 
-  // Verify token on mount
   useEffect(() => {
     const initAuth = async () => {
       const existing = getStoredToken();
@@ -48,11 +48,6 @@ export const App: React.FC = () => {
     setToken(newToken);
     setUser(newUser);
     db.loadDatabases();
-  };
-
-  const handleLogout = () => {
-    clearStoredToken();
-    setToken(null);
   };
 
   const handleSaveEdit = async (record: Record<string, any>, pkCol: string, pkVal: any) => {
@@ -87,17 +82,16 @@ export const App: React.FC = () => {
     );
   }
 
-  if (!token) {
-    return <LoginModal onSuccess={handleLoginSuccess} />;
-  }
+  if (!token) return <LoginModal onSuccess={handleLoginSuccess} />;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#090d16] text-slate-100">
       <Navbar
         selectedDb={db.selectedDb}
         onOpenSql={() => setIsViewingSql(true)}
-        onSelectByfio={() => db.selectDatabaseByName("byfiocr-db")}
-        onLogout={handleLogout}
+        onSelectMainDb={db.selectMainDb}
+        onSelectAiDb={db.selectAiDb}
+        onLogout={() => { clearStoredToken(); setToken(null); }}
         userName={user}
       />
 
@@ -108,6 +102,14 @@ export const App: React.FC = () => {
         onRefresh={db.loadDatabases}
         loading={db.loading}
       />
+
+      {isAiDb && (
+        <AiStatusBanner
+          online={db.aiOnline}
+          metrics={db.aiMetrics}
+          onRefresh={db.checkAiApi}
+        />
+      )}
 
       <div className="flex-1 flex flex-col lg:flex-row min-h-0">
         <TableSidebar

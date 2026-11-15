@@ -1,5 +1,5 @@
 import { getStoredToken } from "./auth";
-import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse } from "../types";
+import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics } from "../types";
 
 function getHeaders(): HeadersInit {
   const token = getStoredToken() || "";
@@ -96,4 +96,18 @@ export async function executeSqlQuery(dbId: string, sql: string, params: any[] =
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.error || "Error al ejecutar consulta SQL");
   return data;
+}
+
+export async function fetchAiStatus(): Promise<{
+  online: boolean;
+  endpoint: string;
+  summary: Partial<AiApiMetrics>;
+}> {
+  const res = await fetch("/api/ai-status", { headers: getHeaders() });
+  const data = await res.json();
+  return {
+    online: data.online ?? false,
+    endpoint: data.endpoint || "https://byfiocr.pages.dev/api/ai/metrics",
+    summary: data.summary || {}
+  };
 }

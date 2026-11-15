@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { D1Database, TableSummary, TableColumn } from "../types";
-import { fetchDatabases, fetchTables, fetchTableData, mutateRow } from "../services/api";
+import { D1Database, TableSummary, TableColumn, AiApiMetrics } from "../types";
+import { fetchDatabases, fetchTables, fetchTableData, mutateRow, fetchAiStatus } from "../services/api";
 
 export function useVisualDB() {
   const [databases, setDatabases] = useState<D1Database[]>([]);
@@ -21,19 +21,17 @@ export function useVisualDB() {
   const [loadingTables, setLoadingTables] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar bases de datos iniciales
+  const [aiOnline, setAiOnline] = useState(false);
+  const [aiMetrics, setAiMetrics] = useState<Partial<AiApiMetrics> | null>(null);
+
   const loadDatabases = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const dbs = await fetchDatabases();
       setDatabases(dbs);
-      
-      // Auto-seleccionar byfiocr-db si existe
-      const byfio = dbs.find(d => d.name === "byfiocr-db") || dbs[0];
-      if (byfio && !selectedDb) {
-        setSelectedDb(byfio);
-      }
+      const mainDb = dbs.find(d => d.name === "byfiocr-db") || dbs[0];
+      if (mainDb && !selectedDb) setSelectedDb(mainDb);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -41,20 +39,14 @@ export function useVisualDB() {
     }
   }, [selectedDb]);
 
-  // Cargar tablas de la base de datos seleccionada
   const loadTables = useCallback(async (db: D1Database) => {
     try {
       setLoadingTables(true);
       setError(null);
       const tbls = await fetchTables(db.uuid);
       setTables(tbls);
-      if (tbls.length > 0) {
-        setSelectedTable(tbls[0].name);
-      } else {
-        setSelectedTable(null);
-        setRows([]);
-        setColumns([]);
-      }
+      setSelectedTable(tbls.length > 0 ? tbls[0].name : null);
+      if (tbls.length === 0) { setRows([]); setColumns([]); }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -62,7 +54,6 @@ export function useVisualDB() {
     }
   }, []);
 
-  // Cargar datos de la tabla activa
   const loadTableData = useCallback(async () => {
     if (!selectedDb || !selectedTable) return;
     try {
@@ -71,11 +62,7 @@ export function useVisualDB() {
       const data = await fetchTableData({
         dbId: selectedDb.uuid,
         table: selectedTable,
-        page,
-        limit,
-        search,
-        sort: sortCol,
-        order: sortOrder
+        page, limit, search, sort: sortCol, order: sortOrder
       });
       setColumns(data.columns);
       setRows(data.rows);
@@ -87,66 +74,46 @@ export function useVisualDB() {
     }
   }, [selectedDb, selectedTable, page, limit, search, sortCol, sortOrder]);
 
+  const checkAiApi = useCallback(async () => {
+    const res = await fetchAiStatus();
+    setAiOnline(res.online);
+    setAiMetrics(res.summary);
+  }, []);
+
   useEffect(() => {
     if (selectedDb) {
       loadTables(selectedDb);
+      if (selectedDb.name.includes("agent")) checkAiApi();
     }
-  }, [selectedDb, loadTables]);
+  }, [selectedDb, loadTables, checkAiApi]);
 
   useEffect(() => {
-    if (selectedDb && selectedTable) {
-      loadTableData();
-    }
+    if (selectedDb && selectedTable) loadTableData();
   }, [selectedDb, selectedTable, page, limit, search, sortCol, sortOrder, loadTableData]);
 
-  const selectDatabaseByName = (name: string) => {
-    const found = databases.find(d => d.name.toLowerCase().includes(name.toLowerCase()));
-    if (found) {
-      setSelectedDb(found);
-      setPage(1);
-      setSearch("");
-    }
+  const selectMainDb = () => {
+    const main = databases.find(d => d.name === "byfiocr-db");
+    if (main) { setSelectedDb(main); setPage(1); setSearch(""); }
+  };
+
+  const selectAiDb = () => {
+    const aiDb = databases.find(d => d.name === "byfio-agent-db") || databases.find(d => d.name.includes("agent"));
+    if (aiDb) { setSelectedDb(aiDb); setPage(1); setSearch(""); checkAiApi(); }
   };
 
   const deleteRow = async (pkCol: string, pkVal: any) => {
     if (!selectedDb || !selectedTable) return;
-    await mutateRow({
-      dbId: selectedDb.uuid,
-      table: selectedTable,
-      action: "delete",
-      pkColumn: pkCol,
-      pkValue: pkVal
-    });
+    await mutateRow({ dbId: selectedDb.uuid, table: selectedTable, action: "delete", pkColumn: pkCol, pkValue: pkVal });
     await loadTableData();
   };
 
   return {
-    databases,
-    selectedDb,
-    setSelectedDb,
-    selectDatabaseByName,
-    tables,
-    selectedTable,
-    setSelectedTable,
-    columns,
-    rows,
-    totalRows,
-    page,
-    setPage,
-    limit,
-    setLimit,
-    search,
-    setSearch,
-    sortCol,
-    setSortCol,
-    sortOrder,
-    setSortOrder,
-    loading,
-    loadingTables,
-    error,
-    setError,
-    loadDatabases,
-    loadTableData,
-    deleteRow
+    databases, selectedDb, setSelectedDb, selectMainDb, selectAiDb,
+    tables, selectedTable, setSelectedTable,
+    columns, rows, totalRows, page, setPage, limit, setLimit,
+    search, setSearch, sortCol, setSortCol, sortOrder, setSortOrder,
+    loading, loadingTables, error, setError,
+    loadDatabases, loadTableData, deleteRow,
+    aiOnline, aiMetrics, checkAiApi
   };
 }

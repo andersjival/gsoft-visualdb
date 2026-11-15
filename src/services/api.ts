@@ -1,5 +1,5 @@
 import { getStoredToken } from "./auth";
-import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics } from "../types";
+import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, DbPlanMetrics } from "../types";
 
 function getHeaders(): HeadersInit {
   const token = getStoredToken() || "";
@@ -110,4 +110,11 @@ export async function fetchAiStatus(): Promise<{
     endpoint: data.endpoint || "https://byfiocr.pages.dev/api/ai/metrics",
     summary: data.summary || {}
   };
+}
+
+export async function fetchDbMetrics(dbId: string): Promise<DbPlanMetrics> {
+  const res = await fetch(`/api/db-metrics?dbId=${encodeURIComponent(dbId)}`, { headers: getHeaders() });
+  const data = await res.json();
+  if (!res.ok || !data.success) throw new Error(data.error || "Error al obtener métricas de BD");
+  return data.metrics;
 }

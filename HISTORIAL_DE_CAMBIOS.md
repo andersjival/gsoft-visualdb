@@ -13,6 +13,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ---
 
+### Versión 1.6.0 — Métricas en Tiempo Real de Base de Datos, Solicitudes del Plan y Peso en Vivo
+- Endpoint `/api/db-metrics`: integración con Cloudflare D1 REST API y GraphQL Analytics (`d1AnalyticsAdaptiveGroups`) para telemetría en tiempo real.
+- Visualización de tamaño en tiempo real por base de datos (bytes formateados en B/KB/MB/GB) y comparativa contra el límite del plan (500 MB en D1 Free).
+- Métricas de solicitudes y operaciones diarias: total de consultas hoy, filas leídas (`rowsRead` vs cupo de 5M/día), filas escritas (`rowsWritten` vs cupo de 100k/día) y acumulado de 30 días.
+- Modal dedicado `DbMetricsModal` con barras de progreso, desglose de lecturas/escrituras y botón de actualización en tiempo real.
+- Pill interactivo en el selector de proyectos mostrando tamaño vivo y solicitudes de la base de datos seleccionada.
+
 ### Versión 1.5.0 — Estabilización Absoluta de Layout & Eliminación de Saltos Visuales
 - Fijación estricta de altura en cabecera (`56px`) y paginación (`40px`) con `overflow-hidden` y `flex-nowrap`, evitando cualquier salto vertical al alternar entre `registered_users` y `ventas`.
 - Persistencia del montaje del Grid: reemplazo del desmontaje total por barra de progreso superior (`h-0.5 animate-pulse`) y overlay transparente de carga, eliminando parpadeos.

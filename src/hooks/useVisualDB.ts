@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { D1Database, TableSummary, TableColumn, AiApiMetrics } from "../types";
-import { fetchDatabases, fetchTables, fetchTableData, mutateRow, fetchAiStatus } from "../services/api";
+import { D1Database, TableSummary, TableColumn, AiApiMetrics, DbPlanMetrics } from "../types";
+import { fetchDatabases, fetchTables, fetchTableData, mutateRow, fetchAiStatus, fetchDbMetrics } from "../services/api";
 
 export function useVisualDB() {
   const [databases, setDatabases] = useState<D1Database[]>([]);
@@ -23,6 +23,23 @@ export function useVisualDB() {
 
   const [aiOnline, setAiOnline] = useState(false);
   const [aiMetrics, setAiMetrics] = useState<Partial<AiApiMetrics> | null>(null);
+
+  const [metrics, setMetrics] = useState<DbPlanMetrics | null>(null);
+  const [loadingMetrics, setLoadingMetrics] = useState(false);
+
+  const loadMetrics = useCallback(async (dbId?: string) => {
+    const id = dbId || selectedDb?.uuid;
+    if (!id) return;
+    try {
+      setLoadingMetrics(true);
+      const data = await fetchDbMetrics(id);
+      setMetrics(data);
+    } catch (err: any) {
+      console.error("Error al cargar métricas:", err);
+    } finally {
+      setLoadingMetrics(false);
+    }
+  }, [selectedDb]);
 
   const loadDatabases = useCallback(async () => {
     try {
@@ -83,9 +100,10 @@ export function useVisualDB() {
   useEffect(() => {
     if (selectedDb) {
       loadTables(selectedDb);
+      loadMetrics(selectedDb.uuid);
       if (selectedDb.name.includes("agent")) checkAiApi();
     }
-  }, [selectedDb, loadTables, checkAiApi]);
+  }, [selectedDb, loadTables, loadMetrics, checkAiApi]);
 
   useEffect(() => {
     if (selectedDb && selectedTable) loadTableData();
@@ -114,6 +132,7 @@ export function useVisualDB() {
     search, setSearch, sortCol, setSortCol, sortOrder, setSortOrder,
     loading, loadingTables, error, setError,
     loadDatabases, loadTableData, deleteRow,
-    aiOnline, aiMetrics, checkAiApi
+    aiOnline, aiMetrics, checkAiApi,
+    metrics, loadingMetrics, loadMetrics
   };
 }

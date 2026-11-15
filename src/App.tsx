@@ -13,72 +13,46 @@ import { SchemaModal } from "./components/SchemaModal";
 import { SqlConsoleModal } from "./components/SqlConsoleModal";
 import { AiStatusBanner } from "./components/AiStatusBanner";
 import { JsonViewerModal } from "./components/JsonViewerModal";
+import { DbMetricsModal } from "./components/DbMetricsModal";
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(getStoredToken());
   const [user, setUser] = useState<string | null>("Anders Jival");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
-
   const [editingRow, setEditingRow] = useState<Record<string, any> | null>(null);
   const [isInserting, setIsInserting] = useState(false);
   const [isViewingSchema, setIsViewingSchema] = useState(false);
   const [isViewingSql, setIsViewingSql] = useState(false);
+  const [isViewingMetrics, setIsViewingMetrics] = useState(false);
   const [jsonModal, setJsonModal] = useState<{ title: string; data: string } | null>(null);
 
   const db = useVisualDB();
   const isAiDb = db.selectedDb?.name === "byfio-agent-db" || (db.selectedDb?.name.includes("agent") ?? false);
 
   useEffect(() => {
-    const initAuth = async () => {
+    (async () => {
       const existing = getStoredToken();
       if (existing && (await verifyToken(existing))) {
         setToken(existing);
         db.loadDatabases();
-      } else {
-        clearStoredToken();
-        setToken(null);
-      }
+      } else { clearStoredToken(); setToken(null); }
       setIsAuthChecking(false);
-    };
-    initAuth();
+    })();
   }, []);
 
   const switchTableCleanly = (tableName: string) => {
-    db.setSearch("");
-    db.setPage(1);
-    db.setSelectedTable(tableName);
+    db.setSearch(""); db.setPage(1); db.setSelectedTable(tableName);
   };
 
-  const handleCellSave = async (row: Record<string, any>, colName: string, newVal: any) => {
+  const mutateAndReload = async (action: "insert" | "update", record: any, pkCol?: string, pkVal?: any) => {
     if (!db.selectedDb || !db.selectedTable) return;
+    await mutateRow({ dbId: db.selectedDb.uuid, table: db.selectedTable, action, record, pkColumn: pkCol, pkValue: pkVal });
+    await db.loadTableData();
+  };
+
+  const handleCellSave = async (row: Record<string, any>, col: string, val: any) => {
     const pk = db.columns.find((c) => c.pk === 1) || db.columns[0];
-    await mutateRow({
-      dbId: db.selectedDb.uuid,
-      table: db.selectedTable,
-      action: "update",
-      record: { [colName]: newVal },
-      pkColumn: pk.name,
-      pkValue: row[pk.name]
-    });
-    await db.loadTableData();
-  };
-
-  const handleSaveEdit = async (record: Record<string, any>, pkCol: string, pkVal: any) => {
-    if (!db.selectedDb || !db.selectedTable) return;
-    await mutateRow({ dbId: db.selectedDb.uuid, table: db.selectedTable, action: "update", record, pkColumn: pkCol, pkValue: pkVal });
-    await db.loadTableData();
-  };
-
-  const handleSaveInsert = async (record: Record<string, any>) => {
-    if (!db.selectedDb || !db.selectedTable) return;
-    await mutateRow({ dbId: db.selectedDb.uuid, table: db.selectedTable, action: "insert", record });
-    await db.loadTableData();
-  };
-
-  const handleFilterByUser = (userId: string) => {
-    db.setSelectedTable("ventas");
-    db.setSearch(userId);
-    db.setPage(1);
+    await mutateAndReload("update", { [col]: val }, pk.name, row[pk.name]);
   };
 
   if (isAuthChecking) {
@@ -104,8 +78,11 @@ export const App: React.FC = () => {
       <ProjectSelector
         databases={db.databases}
         selectedDb={db.selectedDb}
+        metrics={db.metrics}
+        loadingMetrics={db.loadingMetrics}
         onSelect={(d) => db.setSelectedDb(d)}
-        onRefresh={db.loadDatabases}
+        onRefresh={() => { db.loadDatabases(); if (db.selectedDb) db.loadMetrics(db.selectedDb.uuid); }}
+        onOpenMetrics={() => setIsViewingMetrics(true)}
         loading={db.loading}
       />
       {isAiDb && <AiStatusBanner online={db.aiOnline} metrics={db.aiMetrics} onRefresh={db.checkAiApi} />}
@@ -140,16 +117,24 @@ export const App: React.FC = () => {
           }}
           onInspectJson={(title, data) => setJsonModal({ title, data })}
           onCellSave={handleCellSave}
-          onFilterByUser={handleFilterByUser}
+          onFilterByUser={(userId) => { db.setSelectedTable("ventas"); db.setSearch(userId); db.setPage(1); }}
         />
       </div>
 
+      {isViewingMetrics && (
+        <DbMetricsModal
+          metrics={db.metrics}
+          loading={db.loadingMetrics}
+          onRefresh={() => { if (db.selectedDb) db.loadMetrics(db.selectedDb.uuid); }}
+          onClose={() => setIsViewingMetrics(false)}
+        />
+      )}
       {jsonModal && <JsonViewerModal title={jsonModal.title} jsonData={jsonModal.data} onClose={() => setJsonModal(null)} />}
       {editingRow && db.selectedTable && (
-        <RowEditModal tableName={db.selectedTable} columns={db.columns} initialData={editingRow} onClose={() => setEditingRow(null)} onSave={handleSaveEdit} />
+        <RowEditModal tableName={db.selectedTable} columns={db.columns} initialData={editingRow} onClose={() => setEditingRow(null)} onSave={(rec, col, val) => mutateAndReload("update", rec, col, val)} />
       )}
       {isInserting && db.selectedTable && (
-        <RowInsertModal tableName={db.selectedTable} columns={db.columns} onClose={() => setIsInserting(false)} onSave={handleSaveInsert} />
+        <RowInsertModal tableName={db.selectedTable} columns={db.columns} onClose={() => setIsInserting(false)} onSave={(rec) => mutateAndReload("insert", rec)} />
       )}
       {isViewingSchema && db.selectedTable && <SchemaModal tableName={db.selectedTable} columns={db.columns} onClose={() => setIsViewingSchema(false)} />}
       {isViewingSql && db.selectedDb && (

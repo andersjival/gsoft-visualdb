@@ -58,3 +58,28 @@ export interface AiApiMetrics {
   remainingNeuronsToday: number;
   serverTimestamp?: string;
 }
+
+export interface DbPlanMetrics {
+  databaseId: string;
+  databaseName: string;
+  fileSizeBytes: number;
+  fileSizeFormatted: string;
+  maxSizeBytes: number;
+  maxSizeFormatted: string;
+  storagePercentUsed: number;
+  planName: string;
+  todayQueries: number;
+  todayReadQueries: number;
+  todayWriteQueries: number;
+  todayRowsRead: number;
+  todayRowsWritten: number;
+  maxDailyRowsRead: number;
+  maxDailyRowsWritten: number;
+  readPercentUsed: number;
+  writePercentUsed: number;
+  monthQueries: number;
+  monthRowsRead: number;
+  monthRowsWritten: number;
+  status: "healthy" | "warning" | "exceeded";
+  refreshedAt: string;
+}

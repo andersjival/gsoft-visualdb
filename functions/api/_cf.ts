@@ -26,6 +26,19 @@ export async function cfFetch(
   return await response.json() as any;
 }
 
+export async function cfGraphql(query: string, env?: Record<string, any>) {
+  const { token } = getCfCredentials(env);
+  const response = await fetch("https://api.cloudflare.com/client/v4/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ query })
+  });
+  return await response.json() as any;
+}
+
 export async function runD1Sql(
   databaseId: string,
   sql: string,

@@ -13,19 +13,20 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ---
 
-### Versión 1.2.0 — Rediseño Visual Estilo Supabase Studio & Visor Estructurado de Usuarios
-- Implementación de interfaz estilo Supabase Studio con paleta dark zinc (`#121212`, `#171717`, `#1f1f1f`) y verde esmeralda Supabase (`#3ecf8e`).
+### Versión 1.3.0 — Unificación Cromática Dark Neutral & Grises Profesionales
+- Eliminación completa de tonos azulados y cyan en la cabecera superior y selector de bases de datos.
+- Unificación total de la paleta con el cuerpo inferior: fondo `#121212`, barras `#171717` y `#141414`, bordes `#262626` / `#2e2e2e`, grises neutros profesionales (`#1c1c1c`, `#222`, `#737373`) y acentos esmeralda (`#3ecf8e`).
+- Estilos consistentes en todos los modales (Login, Edición, Inserción, Esquema y Consola SQL).
+
+### Versión 1.2.0 — Rediseño Visual & Visor Estructurado de Usuarios
+- Implementación de interfaz de alta fidelidad con paleta dark zinc.
 - Encabezados de tabla con badges de tipo de dato (`int`, `text`, `pk`) y numeración secuencial de filas (#1, #2, #3...).
-- Visor inteligente de JSON ([`JsonViewerModal`](file:///c:/Users/User/Desktop/GeoSoft/CUENTA%20ANDERSJIVAL/CLIENTES%20WEBS/GSOFT-VISUALDB/src/components/JsonViewerModal.tsx)): detecta datos en formato array/objeto (como los de `site_metrics`) y los desglosa automáticamente en una **tabla estructurada interactiva** con columnas, buscador interno por nombre/correo/teléfono y opción de conmutar a código JSON formateado.
-- Acceso directo "Usuarios Registrados" en la barra lateral y en la vista de tabla para visualizar de inmediato a todos los clientes registrados de by.fio en una cuadrícula profesional.
+- Visor inteligente de JSON y tabla nativa `registered_users` con edición en línea in situ.
 
 ### Versión 1.1.0 — Integración de Base de Datos de IA & Conexión con API Oficial
-- Se agregaron los dos botones dedicados en la barra superior: "Visualizar la base de datos" y "Visualizar la base de datos de IA".
-- Conexión con la API oficial del motor de IA (`https://byfiocr.pages.dev/api/ai/metrics` / `ai.byfiocr.com`).
-- Panel interactivo `AiStatusBanner` que reporta estado online y consumo de neuronas.
-- Visualización de tablas del agente de IA: `agent_conversations`, `agent_messages`, etc.
+- Botones "Visualizar la base de datos" y "Visualizar la base de datos de IA".
+- Conexión con la API oficial del motor de IA (`https://byfiocr.pages.dev/api/ai/metrics`).
 
 ### Versión 1.0.0 — Despliegue Inicial de GeoSoft VisualDB
 - Creación de proyecto Cloudflare Pages `gsoft-visualdb`.
 - Autenticación tokenizada por código `Geosoft777$$$`.
-- Selector dinámico de bases de datos D1.

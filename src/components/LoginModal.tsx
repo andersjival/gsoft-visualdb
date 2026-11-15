@@ -33,30 +33,26 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="w-full max-w-md bg-slate-900/90 border border-slate-700/60 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        {/* Glow decorative blur */}
-        <div className="absolute -top-12 -right-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute -bottom-12 -left-12 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-
+      <div className="w-full max-w-md bg-[#171717] border border-[#2e2e2e] rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-emerald-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4 shadow-inner">
+          <div className="w-14 h-14 rounded-2xl bg-[#222] border border-[#333] flex items-center justify-center text-[#3ecf8e] mb-4 shadow-inner">
             <ShieldCheck className="w-7 h-7" />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            GeoSoft <span className="text-cyan-400 font-mono text-lg bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/40">VisualDB</span>
+            GeoSoft <span className="text-[#3ecf8e] font-mono text-lg bg-[#222] px-2 py-0.5 rounded border border-[#333]">VisualDB</span>
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-neutral-400 mt-1">
             Gestión y visualización segura de bases de datos D1
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">
               Código de Acceso Tokenizado
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500">
                 <Lock className="w-4 h-4" />
               </div>
               <input
@@ -65,13 +61,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess }) => {
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Ingresa tu código..."
                 disabled={loading}
-                className="w-full pl-9 pr-10 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono text-sm transition"
+                className="w-full pl-9 pr-10 py-3 bg-[#1f1f1f] border border-[#333] rounded-xl text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-[#3ecf8e] font-mono text-sm transition"
                 autoFocus
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 transition"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-white transition"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -88,22 +84,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3 px-4 bg-[#3ecf8e] hover:bg-[#34b27b] text-black font-bold rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
-              <span className="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+              <span className="inline-block w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <KeyRound className="w-4 h-4" />
+                <KeyRound className="w-4 h-4 stroke-[2.5]" />
                 <span>Desbloquear Panel</span>
               </>
             )}
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-800 text-center">
-          <p className="text-[11px] text-slate-500 flex items-center justify-center gap-1">
-            <Sparkles className="w-3 h-3 text-cyan-400" />
+        <div className="mt-6 pt-4 border-t border-[#262626] text-center">
+          <p className="text-[11px] text-neutral-500 flex items-center justify-center gap-1">
+            <Sparkles className="w-3 h-3 text-[#3ecf8e]" />
             Sesión criptográfica protegida por HMAC-SHA256
           </p>
         </div>

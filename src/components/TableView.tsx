@@ -1,6 +1,7 @@
 import React from "react";
 import { TableColumn } from "../types";
-import { Plus, Search, Edit3, Trash2, Code2, ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
+import { TableDataGrid } from "./TableDataGrid";
+import { Plus, Search, Code2, ChevronLeft, ChevronRight, Loader2, RefreshCw, Users, Table as TableIcon } from "lucide-react";
 
 interface TableViewProps {
   tableName: string | null;
@@ -18,172 +19,126 @@ interface TableViewProps {
   onOpenSchema: () => void;
   onEditRow: (row: Record<string, any>) => void;
   onDeleteRow: (row: Record<string, any>) => void;
+  onInspectJson: (title: string, data: string) => void;
 }
 
 export const TableView: React.FC<TableViewProps> = ({
-  tableName,
-  columns,
-  rows,
-  totalRows,
-  page,
-  limit,
-  search,
-  loading,
-  onPageChange,
-  onSearchChange,
-  onRefresh,
-  onOpenInsert,
-  onOpenSchema,
-  onEditRow,
-  onDeleteRow
+  tableName, columns, rows, totalRows, page, limit, search, loading,
+  onPageChange, onSearchChange, onRefresh, onOpenInsert, onOpenSchema,
+  onEditRow, onDeleteRow, onInspectJson
 }) => {
   const totalPages = Math.ceil(totalRows / limit) || 1;
+  const isMetricsTable = tableName === "site_metrics";
+
+  // Buscar fila de app_registered_users si estamos en site_metrics
+  const usersRow = isMetricsTable ? rows.find(r => r.id === "app_registered_users") : null;
 
   if (!tableName) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-12 text-slate-500">
-        <p className="text-sm">Selecciona una tabla para visualizar y modificar sus datos</p>
+      <div className="flex-1 flex flex-col items-center justify-center p-12 text-neutral-500 bg-[#121212]">
+        <TableIcon className="w-10 h-10 mb-2 text-neutral-600" />
+        <p className="text-sm">Selecciona una tabla en el menú lateral para explorar registros</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-slate-950/40 overflow-hidden">
-      {/* Controls Bar */}
-      <div className="p-3 sm:p-4 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-900/40">
-        <div className="flex items-center gap-3">
-          <h3 className="font-bold text-white text-base font-mono flex items-center gap-2">
+    <div className="flex-1 flex flex-col min-w-0 bg-[#121212] overflow-hidden border-t sm:border-t-0 sm:border-l border-[#262626]">
+      {/* Supabase Controls Bar */}
+      <div className="p-3 sm:px-4 border-b border-[#262626] flex flex-wrap items-center justify-between gap-3 bg-[#171717]">
+        <div className="flex items-center gap-2.5">
+          <TableIcon className="w-4 h-4 text-[#3ecf8e]" />
+          <h3 className="font-semibold text-white text-sm font-mono flex items-center gap-2">
             <span>{tableName}</span>
-            <span className="text-xs text-slate-400 font-sans font-normal">
-              ({totalRows} {totalRows === 1 ? "registro" : "registros"})
+            <span className="text-[11px] font-sans px-2 py-0.5 rounded-full bg-[#262626] text-neutral-400 font-normal">
+              {totalRows} filas
             </span>
           </h3>
+
+          {usersRow && (
+            <button
+              onClick={() => onInspectJson("Usuarios Registrados (app_registered_users)", usersRow.data)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-[#3ecf8e]/20 hover:bg-[#3ecf8e]/30 text-[#3ecf8e] border border-[#3ecf8e]/40 transition shadow-sm animate-pulse"
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Ver Usuarios Registrados</span>
+            </button>
+          )}
+
           <button
             onClick={onOpenSchema}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs bg-[#222] hover:bg-[#2c2c2c] text-neutral-300 rounded-lg border border-[#333] transition"
           >
-            <Code2 className="w-3.5 h-3.5 text-cyan-400" />
+            <Code2 className="w-3.5 h-3.5 text-neutral-400" />
             <span>Esquema</span>
           </button>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-2.5 top-2.5" />
             <input
               type="text"
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Filtrar registros..."
-              className="pl-8 pr-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 w-36 sm:w-48"
+              placeholder="Buscar en tabla..."
+              className="pl-8 pr-3 py-1.5 bg-[#1f1f1f] border border-[#333] rounded-lg text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#3ecf8e] w-36 sm:w-48"
             />
           </div>
           <button
             onClick={onRefresh}
             title="Refrescar datos"
-            className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition"
+            className="p-1.5 bg-[#222] hover:bg-[#2c2c2c] text-neutral-300 rounded-lg border border-[#333] transition"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-cyan-400" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#3ecf8e]" : ""}`} />
           </button>
           <button
             onClick={onOpenInsert}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold shadow transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#3ecf8e] hover:bg-[#34b27b] text-black font-semibold rounded-lg text-xs shadow transition"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Nuevo Registro</span>
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Insertar Fila</span>
           </button>
         </div>
       </div>
 
-      {/* Table Data */}
-      <div className="flex-1 overflow-auto scrollbar-thin">
+      {/* Grid */}
+      <div className="flex-1 overflow-auto scrollbar-thin bg-[#121212]">
         {loading && rows.length === 0 ? (
-          <div className="flex items-center justify-center p-12 text-slate-400 gap-2">
-            <Loader2 className="w-5 h-5 animate-spin text-cyan-400" />
-            <span className="text-sm">Cargando registros...</span>
+          <div className="flex items-center justify-center p-12 text-neutral-400 gap-2">
+            <Loader2 className="w-5 h-5 animate-spin text-[#3ecf8e]" />
+            <span className="text-sm">Cargando datos...</span>
           </div>
         ) : (
-          <table className="w-full text-left border-collapse text-xs">
-            <thead className="bg-slate-900/90 sticky top-0 border-b border-slate-800 z-10">
-              <tr>
-                <th className="p-2.5 px-3 text-slate-400 font-semibold w-20 text-center">Acciones</th>
-                {columns.map((c) => (
-                  <th key={c.cid} className="p-2.5 px-3 text-slate-300 font-semibold font-mono whitespace-nowrap">
-                    {c.name}
-                    {c.pk === 1 && <span className="ml-1 text-[10px] text-amber-400">🔑</span>}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60">
-              {rows.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length + 1} className="p-8 text-center text-slate-500">
-                    No se encontraron registros
-                  </td>
-                </tr>
-              ) : (
-                rows.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-slate-800/40 transition group">
-                    <td className="p-2 px-3 text-center whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => onEditRow(row)}
-                          title="Editar registro"
-                          className="p-1 hover:bg-cyan-950 text-slate-400 hover:text-cyan-400 rounded transition"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => onDeleteRow(row)}
-                          title="Eliminar registro"
-                          className="p-1 hover:bg-rose-950 text-slate-400 hover:text-rose-400 rounded transition"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                    {columns.map((c) => {
-                      const val = row[c.name];
-                      const displayVal = val === null ? "NULL" : typeof val === "object" ? JSON.stringify(val) : String(val);
-                      return (
-                        <td
-                          key={c.cid}
-                          className={`p-2 px-3 max-w-xs truncate font-mono ${val === null ? "text-slate-600 italic" : "text-slate-200"}`}
-                          title={displayVal}
-                        >
-                          {displayVal}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <TableDataGrid
+            columns={columns}
+            rows={rows}
+            onEditRow={onEditRow}
+            onDeleteRow={onDeleteRow}
+            onInspectJson={onInspectJson}
+          />
         )}
       </div>
 
       {/* Pagination Bar */}
-      <div className="p-3 border-t border-slate-800 bg-slate-900/40 flex items-center justify-between text-xs text-slate-400">
+      <div className="p-2.5 px-4 border-t border-[#262626] bg-[#171717] flex items-center justify-between text-xs text-neutral-400 font-mono">
         <div>
-          Página <span className="text-slate-200 font-semibold">{page}</span> de{" "}
-          <span className="text-slate-200 font-semibold">{totalPages}</span>
+          Página <span className="text-white font-semibold">{page}</span> de <span className="text-white font-semibold">{totalPages}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 transition"
+            className="p-1.5 rounded bg-[#222] hover:bg-[#2c2c2c] disabled:opacity-30 text-neutral-300 border border-[#333] transition"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 transition"
+            className="p-1.5 rounded bg-[#222] hover:bg-[#2c2c2c] disabled:opacity-30 text-neutral-300 border border-[#333] transition"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

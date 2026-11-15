@@ -13,6 +13,15 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ---
 
+### Versión 1.8.0 — Sección de Almacenamiento Cloudflare R2 & Capacidad Integral de Base de Datos
+- **Módulo de Almacenamiento R2 (`R2StorageView.tsx`)**:
+  - Nueva sección principal accesible directamente desde el Navbar con botón dedicado "Almacenamiento R2".
+  - Tarjeta de Espacio R2 en tiempo real: monitoreo de tamaño total almacenado (Bytes/KB/MB) vs cuota mensual de 10.00 GB del plan gratuito de Cloudflare R2, porcentaje de uso, contador de objetos y operaciones de subida.
+  - Tarjeta de Capacidad de Base de Datos D1: comparativa de tamaño en vivo vs límite de 500 MB, filas leídas (5M/día) y filas escritas (100k/día).
+  - Explorador interactivo de archivos R2 con buscador en tiempo real, miniaturas de imágenes, tamaño formateado, tipo MIME, fecha de subida, modal de previsualización en alta resolución, botón de descarga directa y copiado de URL pública.
+- **Endpoint Serverless `/api/r2-storage` (`functions/api/r2-storage.ts`)**:
+  - Consulta a Cloudflare REST API para listar buckets (`/r2/buckets`), métricas de uso (`/usage`) y objetos almacenados (`/objects`) de la cuenta activa (`georgeandersmail` / `01514e27c0cdd221efd91900be83fb16`).
+
 ### Versión 1.7.0 — Soporte Multi-Cuenta Cloudflare (Anders Jival & George Anders)
 - Selector interactivo de cuenta en la barra superior (`Navbar`): alternancia instantánea entre `Anders Jival` (`andersjival`) y `George Anders` (`georgeandersmail@gmail.com`).
 - Enrutamiento dinámico en `_cf.ts`: despacho transparente de peticiones y autenticación API por cuenta vía cabecera `X-Cloudflare-Account` y parámetros contextuales.

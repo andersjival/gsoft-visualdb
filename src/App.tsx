@@ -14,11 +14,13 @@ import { SqlConsoleModal } from "./components/SqlConsoleModal";
 import { AiStatusBanner } from "./components/AiStatusBanner";
 import { JsonViewerModal } from "./components/JsonViewerModal";
 import { DbMetricsModal } from "./components/DbMetricsModal";
+import { R2StorageView } from "./components/R2StorageView";
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(getStoredToken());
   const [user, setUser] = useState<string | null>("Anders Jival");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [mainTab, setMainTab] = useState<"database" | "r2">("database");
   const [editingRow, setEditingRow] = useState<Record<string, any> | null>(null);
   const [isInserting, setIsInserting] = useState(false);
   const [isViewingSchema, setIsViewingSchema] = useState(false);
@@ -72,32 +74,50 @@ export const App: React.FC = () => {
         account={db.account}
         onSwitchAccount={db.switchAccount}
         onOpenSql={() => setIsViewingSql(true)}
-        onSelectMainDb={db.selectMainDb}
-        onSelectAiDb={db.selectAiDb}
+        onSelectMainDb={() => { setMainTab("database"); db.selectMainDb(); }}
+        onSelectAiDb={() => { setMainTab("database"); db.selectAiDb(); }}
+        activeTab={mainTab}
+        onSelectR2={() => {
+          setMainTab("r2");
+          if (db.account !== "george") {
+            db.switchAccount("george");
+          }
+        }}
         onLogout={() => { clearStoredToken(); setToken(null); }}
         userName={user}
       />
-      <ProjectSelector
-        databases={db.databases}
-        selectedDb={db.selectedDb}
-        metrics={db.metrics}
-        loadingMetrics={db.loadingMetrics}
-        onSelect={(d) => db.setSelectedDb(d)}
-        onRefresh={() => { db.loadDatabases(); if (db.selectedDb) db.loadMetrics(db.selectedDb.uuid); }}
-        onOpenMetrics={() => setIsViewingMetrics(true)}
-        loading={db.loading}
-      />
-      {isAiDb && <AiStatusBanner online={db.aiOnline} metrics={db.aiMetrics} onRefresh={db.checkAiApi} />}
 
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0">
-        <TableSidebar
-          tables={db.tables}
-          selectedTable={db.selectedTable}
-          onSelectTable={(t) => switchTableCleanly(t)}
-          onOpenUsersDirectly={db.selectedDb?.name === "byfiocr-db" ? () => switchTableCleanly("registered_users") : undefined}
-          onOpenVentasDirectly={db.selectedDb?.name === "byfiocr-db" ? () => switchTableCleanly("ventas") : undefined}
-          loading={db.loadingTables}
+      {mainTab === "r2" ? (
+        <R2StorageView
+          account={db.account}
+          onSwitchAccount={db.switchAccount}
+          dbMetrics={db.metrics}
+          selectedDbName={db.selectedDb?.name}
+          onOpenDbMetrics={() => setIsViewingMetrics(true)}
         />
+      ) : (
+        <>
+          <ProjectSelector
+            databases={db.databases}
+            selectedDb={db.selectedDb}
+            metrics={db.metrics}
+            loadingMetrics={db.loadingMetrics}
+            onSelect={(d) => db.setSelectedDb(d)}
+            onRefresh={() => { db.loadDatabases(); if (db.selectedDb) db.loadMetrics(db.selectedDb.uuid); }}
+            onOpenMetrics={() => setIsViewingMetrics(true)}
+            loading={db.loading}
+          />
+          {isAiDb && <AiStatusBanner online={db.aiOnline} metrics={db.aiMetrics} onRefresh={db.checkAiApi} />}
+
+          <div className="flex-1 flex flex-col lg:flex-row min-h-0">
+            <TableSidebar
+              tables={db.tables}
+              selectedTable={db.selectedTable}
+              onSelectTable={(t) => switchTableCleanly(t)}
+              onOpenUsersDirectly={db.selectedDb?.name === "byfiocr-db" ? () => switchTableCleanly("registered_users") : undefined}
+              onOpenVentasDirectly={db.selectedDb?.name === "byfiocr-db" ? () => switchTableCleanly("ventas") : undefined}
+              loading={db.loadingTables}
+            />
         <TableView
           tableName={db.selectedTable}
           columns={db.columns}
@@ -122,6 +142,8 @@ export const App: React.FC = () => {
           onFilterByUser={(userId) => { db.setSelectedTable("ventas"); db.setSearch(userId); db.setPage(1); }}
         />
       </div>
+      </>
+      )}
 
       {isViewingMetrics && (
         <DbMetricsModal

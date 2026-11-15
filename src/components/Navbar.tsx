@@ -1,5 +1,5 @@
 import React from "react";
-import { Database, Terminal, LogOut, Bot, HardDrive, ExternalLink } from "lucide-react";
+import { Database, Terminal, LogOut, Bot, HardDrive, ExternalLink, Cloud } from "lucide-react";
 import { D1Database, AccountKey } from "../types";
 
 interface NavbarProps {
@@ -9,6 +9,8 @@ interface NavbarProps {
   onOpenSql: () => void;
   onSelectMainDb: () => void;
   onSelectAiDb: () => void;
+  activeTab?: "database" | "r2";
+  onSelectR2?: () => void;
   onLogout: () => void;
   userName: string | null;
 }
@@ -20,11 +22,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSql,
   onSelectMainDb,
   onSelectAiDb,
+  activeTab = "database",
+  onSelectR2,
   onLogout,
   userName
 }) => {
-  const isMainActive = selectedDb?.name === "byfiocr-db";
-  const isAiActive = selectedDb?.name === "byfio-agent-db" || (selectedDb?.name.includes("agent") ?? false);
+  const isMainActive = activeTab === "database" && selectedDb?.name === "byfiocr-db";
+  const isAiActive = activeTab === "database" && (selectedDb?.name === "byfio-agent-db" || (selectedDb?.name.includes("agent") ?? false));
+  const isR2Active = activeTab === "r2";
 
   return (
     <header className="sticky top-0 z-30 bg-[#171717] border-b border-[#262626]">
@@ -84,6 +89,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Bot className={`w-3.5 h-3.5 ${isAiActive ? "text-purple-400 animate-pulse" : "text-neutral-400"}`} />
             <span>Visualizar la base de datos de IA</span>
           </button>
+
+          {onSelectR2 && (
+            <button
+              onClick={onSelectR2}
+              title="Visualizar almacenamiento de archivos Cloudflare R2 (Fotos DTF y capacidad)"
+              className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold transition border ${
+                isR2Active
+                  ? "bg-indigo-950/40 text-indigo-200 border-indigo-500/60 ring-1 ring-indigo-500/30 shadow-sm"
+                  : "bg-[#202020] hover:bg-[#262626] text-neutral-300 border-[#2e2e2e] hover:text-indigo-300"
+              }`}
+            >
+              <Cloud className={`w-3.5 h-3.5 ${isR2Active ? "text-indigo-400" : "text-neutral-400"}`} />
+              <span>Almacenamiento R2</span>
+              {account === "george" && (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" title="R2 Activo en esta cuenta" />
+              )}
+            </button>
+          )}
         </div>
 
         {/* Right: Actions & Logout */}

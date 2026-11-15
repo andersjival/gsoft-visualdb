@@ -92,3 +92,46 @@ export interface DbPlanMetrics {
   status: "healthy" | "warning" | "exceeded";
   refreshedAt: string;
 }
+
+export interface R2BucketInfo {
+  name: string;
+  creationDate?: string;
+}
+
+export interface R2UsageMetrics {
+  payloadBytes: number;
+  payloadFormatted: string;
+  metadataBytes: number;
+  totalStoredBytes: number;
+  totalStoredFormatted: string;
+  maxSizeBytes: number;
+  maxSizeFormatted: string;
+  percentUsed: number;
+  objectCount: number;
+  uploadCount: number;
+  planName: string;
+  lastSync?: string;
+}
+
+export interface R2ObjectItem {
+  key: string;
+  name: string;
+  sizeBytes: number;
+  sizeFormatted: string;
+  contentType: string;
+  isImage: boolean;
+  uploadedAt: string;
+  storageClass: string;
+  publicUrl: string;
+}
+
+export interface R2StorageData {
+  success: boolean;
+  notEnabled?: boolean;
+  error?: string;
+  account?: CloudflareAccountInfo;
+  buckets: R2BucketInfo[];
+  selectedBucket: string | null;
+  usage: R2UsageMetrics | null;
+  objects: R2ObjectItem[];
+}

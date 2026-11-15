@@ -1,5 +1,5 @@
 import { getStoredToken } from "./auth";
-import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, DbPlanMetrics, AccountKey } from "../types";
+import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, DbPlanMetrics, AccountKey, R2StorageData } from "../types";
 
 let activeAccount: AccountKey = (localStorage.getItem("gsoft_active_account") as AccountKey) || "anders";
 
@@ -129,4 +129,18 @@ export async function fetchDbMetrics(dbId: string): Promise<DbPlanMetrics> {
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.error || "Error al obtener métricas de BD");
   return data.metrics;
+}
+
+export async function fetchR2Storage(bucket?: string, account?: AccountKey): Promise<R2StorageData> {
+  const query = new URLSearchParams();
+  if (bucket) query.set("bucket", bucket);
+  if (account) query.set("account", account);
+  const res = await fetch(`/api/r2-storage?${query.toString()}`, {
+    headers: {
+      ...getHeaders(),
+      ...(account ? { "X-Cloudflare-Account": account } : {})
+    }
+  });
+  const data = await res.json();
+  return data;
 }

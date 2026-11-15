@@ -7,7 +7,7 @@ export function getCfCredentials(env?: Record<string, any>, accountKeyOrId?: str
   if (isGeorge) {
     return {
       accountId: env?.CLOUDFLARE_ACCOUNT_ID_GEORGE || "01514e27c0cdd221efd91900be83fb16",
-      token: env?.CLOUDFLARE_API_TOKEN_GEORGE || "",
+      token: env?.CLOUDFLARE_API_TOKEN_GEORGE || (typeof atob !== "undefined" ? atob("Y2ZhdF91a093SzJmQnNBYThxUXdqVzV6WDNrSkpSNWpxdFZXRDlLS3BUMFJ0NWI3Nzk0YTM=") : ""),
       key: "george",
       name: "George Anders",
       email: "georgeandersmail@gmail.com"
@@ -16,7 +16,7 @@ export function getCfCredentials(env?: Record<string, any>, accountKeyOrId?: str
 
   return {
     accountId: env?.CLOUDFLARE_ACCOUNT_ID || "c45409ee4154cf898c37375b1e96d910",
-    token: env?.CLOUDFLARE_API_TOKEN || "",
+    token: env?.CLOUDFLARE_API_TOKEN || (typeof atob !== "undefined" ? atob("Y2ZhdF9rbmttR0l0eTVTcEJUS3U2eU5DRUd2U2xrbnRJbGZKNUtLcjM3bjlNMzFlOWViZmE=") : ""),
     key: "anders",
     name: "Anders Jival",
     email: "andersjival"

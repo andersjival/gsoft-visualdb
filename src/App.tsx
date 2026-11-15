@@ -43,6 +43,12 @@ export const App: React.FC = () => {
     initAuth();
   }, []);
 
+  const switchTableCleanly = (tableName: string) => {
+    db.setSearch("");
+    db.setPage(1);
+    db.setSelectedTable(tableName);
+  };
+
   const handleCellSave = async (row: Record<string, any>, colName: string, newVal: any) => {
     if (!db.selectedDb || !db.selectedTable) return;
     const pk = db.columns.find((c) => c.pk === 1) || db.columns[0];
@@ -108,9 +114,9 @@ export const App: React.FC = () => {
         <TableSidebar
           tables={db.tables}
           selectedTable={db.selectedTable}
-          onSelectTable={(t) => db.setSelectedTable(t)}
-          onOpenUsersDirectly={db.selectedDb?.name === "byfiocr-db" ? () => db.setSelectedTable("registered_users") : undefined}
-          onOpenVentasDirectly={db.selectedDb?.name === "byfiocr-db" ? () => { db.setSelectedTable("ventas"); db.setSearch(""); } : undefined}
+          onSelectTable={(t) => switchTableCleanly(t)}
+          onOpenUsersDirectly={db.selectedDb?.name === "byfiocr-db" ? () => switchTableCleanly("registered_users") : undefined}
+          onOpenVentasDirectly={db.selectedDb?.name === "byfiocr-db" ? () => switchTableCleanly("ventas") : undefined}
           loading={db.loadingTables}
         />
         <TableView

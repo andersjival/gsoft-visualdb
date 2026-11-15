@@ -44,8 +44,8 @@ export const TableDataGrid: React.FC<TableDataGridProps> = ({
     <table className="w-full text-left border-collapse text-xs select-text">
       <thead className="bg-[#1c1c1c] sticky top-0 border-b border-[#2e2e2e] z-10 shadow-sm">
         <tr>
-          <th className="p-2.5 px-3 text-neutral-500 font-mono w-12 text-center border-r border-[#2a2a2a]">#</th>
-          <th className="p-2.5 px-3 text-neutral-400 font-medium w-24 text-center border-r border-[#2a2a2a]">Acciones</th>
+          <th className="p-2.5 px-3 text-neutral-500 font-mono w-12 min-w-[48px] max-w-[48px] text-center border-r border-[#2a2a2a]">#</th>
+          <th className="p-2.5 px-2 text-neutral-400 font-medium w-20 min-w-[80px] max-w-[80px] text-center border-r border-[#2a2a2a]">Acciones</th>
           {columns.map((c) => (
             <th key={c.cid} className="p-2.5 px-3.5 text-neutral-300 font-mono font-medium whitespace-nowrap border-r border-[#2a2a2a]/60">
               <div className="flex items-center gap-1.5">
@@ -66,8 +66,8 @@ export const TableDataGrid: React.FC<TableDataGridProps> = ({
         ) : (
           rows.map((row, idx) => (
             <tr key={idx} className="hover:bg-[#1a1a1a] transition group">
-              <td className="p-2 px-3 text-center text-neutral-500 font-mono text-[11px] border-r border-[#262626]">{idx + 1}</td>
-              <td className="p-2 px-3 text-center whitespace-nowrap border-r border-[#262626]">
+              <td className="p-2 px-3 text-center text-neutral-500 font-mono text-[11px] w-12 min-w-[48px] max-w-[48px] border-r border-[#262626]">{idx + 1}</td>
+              <td className="p-2 px-2 text-center whitespace-nowrap w-20 min-w-[80px] max-w-[80px] border-r border-[#262626]">
                 <div className="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition">
                   {isUsersTable && onFilterByUser && (
                     <button

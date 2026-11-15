@@ -13,6 +13,21 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ---
 
+### Versión 1.9.0 — Migración a Cuenta George Anders & Blindaje de Acceso Cloudflare Zero Trust
+- **Migración Integral de Cuenta Cloudflare Pages (`gsoft-visualdb`)**:
+  - Reubicación y despliegue del proyecto Pages desde la cuenta `andersjival` hacia la cuenta `georgeandersmail` (`01514e27c0cdd221efd91900be83fb16`), manteniendo el subdominio de producción `https://gsoft-visualdb.pages.dev`.
+  - Inyección oficial de variables de entorno de producción en Cloudflare Pages (`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID_GEORGE`, `CLOUDFLARE_API_TOKEN_GEORGE`, `CLOUDFLARE_ACCOUNT_ID_ANDERS`, `CLOUDFLARE_API_TOKEN_ANDERS`).
+  - Actualización de credenciales y comandos en [`GEMINI.md`](file:///c:/Users/User/Desktop/GeoSoft/CUENTA%20ANDERSJIVAL/CLIENTES%20WEBS/GSOFT-VISUALDB/GEMINI.md) y [`CLAVES GEORGEANDERSMAIL.txt`](file:///c:/Users/User/Desktop/GeoSoft/CUENTA%20ANDERSJIVAL/CLIENTES%20WEBS/GSOFT-VISUALDB/CLAVES%20GEORGEANDERSMAIL.txt).
+- **Protección Perimetral Cloudflare Zero Trust (Access)**:
+  - Creación de aplicación de acceso `self_hosted` en Cloudflare Access vinculada a `gsoft-visualdb.pages.dev`.
+  - Política de acceso exclusiva con código PIN de un solo uso (One-Time PIN) restringida estrictamente a los 3 correos autorizados: `web@byfiocr.com`, `pampo32@gmail.com` y `georgeandersmail@gmail.com`.
+- **Corrección de Token y Conectividad D1 (`functions/api/_cf.ts` & `src/services/api.ts`)**:
+  - Corrección de caracteres corruptos en la firma Base64 del token de autenticación de George Anders, resolviendo el error `401 Authentication Error`.
+  - Establecimiento de `george` como cuenta activa predeterminada en `src/services/api.ts` y enrutamiento transparente en `functions/api/_cf.ts` con lectura prioritaria de `context.env`.
+  - Carga inmediata y sincronización en vivo de las 10 bases de datos D1 del entorno (`byfiocr-db`, `fonticr-db`, `destaqueos-marin-db`, `clikfood-db`, `scanlead-db`, `geosoft-db`, `dentalclik-db`, `autohub-db`, `declara360-db`, `clikchat-db`).
+
+---
+
 ### Versión 1.8.0 — Sección de Almacenamiento Cloudflare R2 & Capacidad Integral de Base de Datos
 - **Módulo de Almacenamiento R2 (`R2StorageView.tsx`)**:
   - Nueva sección principal accesible directamente desde el Navbar con botón dedicado "Almacenamiento R2".

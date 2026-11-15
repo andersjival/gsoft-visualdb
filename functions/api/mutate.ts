@@ -1,5 +1,5 @@
 import { verifySessionToken } from "./_auth";
-import { runD1Sql } from "./_cf";
+import { runD1Sql, getAccountFromContext } from "./_cf";
 
 export const onRequestPost = async (context: any) => {
   const authHeader = context.request.headers.get("Authorization");
@@ -15,6 +15,7 @@ export const onRequestPost = async (context: any) => {
   try {
     const body = await context.request.json().catch(() => ({}));
     const { dbId, table, action, record, pkColumn, pkValue } = body;
+    const accountKey = getAccountFromContext(context, body?.account);
 
     if (!dbId || !table || !action) {
       return new Response(JSON.stringify({ error: "dbId, table y action son requeridos" }), {
@@ -25,7 +26,7 @@ export const onRequestPost = async (context: any) => {
 
     // Mutaciones directas sobre Usuarios Registrados
     if (table === "registered_users") {
-      const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env);
+      const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env, accountKey);
       let users: any[] = [];
       if (uRes.results[0]?.data) {
         users = JSON.parse(uRes.results[0].data);
@@ -48,7 +49,8 @@ export const onRequestPost = async (context: any) => {
         dbId,
         "UPDATE site_metrics SET data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 'app_registered_users';",
         [JSON.stringify(users)],
-        context.env
+        context.env,
+        accountKey
       );
 
       return new Response(JSON.stringify({ success: true, count: users.length }), {
@@ -64,7 +66,7 @@ export const onRequestPost = async (context: any) => {
       }
       const cleanPk = pkColumn.replace(/[^a-zA-Z0-9_]/g, "");
       const sql = `DELETE FROM "${cleanTable}" WHERE "${cleanPk}" = ?;`;
-      const res = await runD1Sql(dbId, sql, [pkValue], context.env);
+      const res = await runD1Sql(dbId, sql, [pkValue], context.env, accountKey);
       return new Response(JSON.stringify({ success: true, meta: res.meta }), {
         headers: { "Content-Type": "application/json" }
       });
@@ -85,7 +87,7 @@ export const onRequestPost = async (context: any) => {
       const setClauses = keys.map(k => `"${k.replace(/[^a-zA-Z0-9_]/g, "")}" = ?`).join(", ");
       const params = [...keys.map(k => record[k]), pkValue];
       const sql = `UPDATE "${cleanTable}" SET ${setClauses} WHERE "${cleanPk}" = ?;`;
-      const res = await runD1Sql(dbId, sql, params, context.env);
+      const res = await runD1Sql(dbId, sql, params, context.env, accountKey);
       return new Response(JSON.stringify({ success: true, meta: res.meta }), {
         headers: { "Content-Type": "application/json" }
       });
@@ -104,7 +106,7 @@ export const onRequestPost = async (context: any) => {
       const placeholders = keys.map(() => "?").join(", ");
       const params = keys.map(k => record[k]);
       const sql = `INSERT INTO "${cleanTable}" (${colNames}) VALUES (${placeholders});`;
-      const res = await runD1Sql(dbId, sql, params, context.env);
+      const res = await runD1Sql(dbId, sql, params, context.env, accountKey);
       return new Response(JSON.stringify({ success: true, meta: res.meta }), {
         headers: { "Content-Type": "application/json" }
       });

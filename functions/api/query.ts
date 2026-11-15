@@ -1,5 +1,5 @@
 import { verifySessionToken } from "./_auth";
-import { runD1Sql } from "./_cf";
+import { runD1Sql, getAccountFromContext } from "./_cf";
 
 export const onRequestPost = async (context: any) => {
   const authHeader = context.request.headers.get("Authorization");
@@ -15,6 +15,7 @@ export const onRequestPost = async (context: any) => {
   try {
     const body = await context.request.json().catch(() => ({}));
     const { dbId, sql, params = [] } = body;
+    const accountKey = getAccountFromContext(context, body?.account);
 
     if (!dbId || !sql) {
       return new Response(JSON.stringify({ error: "dbId y sql son requeridos" }), {
@@ -23,7 +24,7 @@ export const onRequestPost = async (context: any) => {
       });
     }
 
-    const res = await runD1Sql(dbId, sql, params, context.env);
+    const res = await runD1Sql(dbId, sql, params, context.env, accountKey);
     return new Response(
       JSON.stringify({
         success: true,

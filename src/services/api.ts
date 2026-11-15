@@ -1,11 +1,23 @@
 import { getStoredToken } from "./auth";
-import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, DbPlanMetrics } from "../types";
+import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, DbPlanMetrics, AccountKey } from "../types";
+
+let activeAccount: AccountKey = (localStorage.getItem("gsoft_active_account") as AccountKey) || "anders";
+
+export function setActiveAccount(account: AccountKey) {
+  activeAccount = account;
+  try { localStorage.setItem("gsoft_active_account", account); } catch {}
+}
+
+export function getActiveAccount(): AccountKey {
+  return activeAccount;
+}
 
 function getHeaders(): HeadersInit {
   const token = getStoredToken() || "";
   return {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
+    "X-Cloudflare-Account": activeAccount
   };
 }
 

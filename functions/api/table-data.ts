@@ -1,5 +1,5 @@
 import { verifySessionToken } from "./_auth";
-import { runD1Sql } from "./_cf";
+import { runD1Sql, getAccountFromContext } from "./_cf";
 
 export const onRequestGet = async (context: any) => {
   const authHeader = context.request.headers.get("Authorization");
@@ -12,6 +12,7 @@ export const onRequestGet = async (context: any) => {
     });
   }
 
+  const accountKey = getAccountFromContext(context);
   const url = new URL(context.request.url);
   const dbId = url.searchParams.get("dbId");
   const table = url.searchParams.get("table");
@@ -31,7 +32,7 @@ export const onRequestGet = async (context: any) => {
   // Soporte directo para Usuarios Registrados
   if (table === "registered_users") {
     try {
-      const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env);
+      const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env, accountKey);
       let users: any[] = [];
       if (uRes.results[0]?.data) {
         users = JSON.parse(uRes.results[0].data);
@@ -76,7 +77,7 @@ export const onRequestGet = async (context: any) => {
 
   try {
     const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
-    const schemaRes = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env);
+    const schemaRes = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env, accountKey);
     const columns = schemaRes.results;
 
     let whereClause = "";
@@ -92,7 +93,7 @@ export const onRequestGet = async (context: any) => {
     }
 
     const countSql = `SELECT COUNT(*) as total FROM "${cleanTable}" ${whereClause};`;
-    const countRes = await runD1Sql(dbId, countSql, params, context.env);
+    const countRes = await runD1Sql(dbId, countSql, params, context.env, accountKey);
     const total = countRes.results[0]?.total ?? 0;
 
     let orderClause = "";
@@ -102,7 +103,7 @@ export const onRequestGet = async (context: any) => {
 
     const offset = (page - 1) * limit;
     const dataSql = `SELECT * FROM "${cleanTable}" ${whereClause} ${orderClause} LIMIT ${limit} OFFSET ${offset};`;
-    const dataRes = await runD1Sql(dbId, dataSql, params, context.env);
+    const dataRes = await runD1Sql(dbId, dataSql, params, context.env, accountKey);
 
     return new Response(
       JSON.stringify({

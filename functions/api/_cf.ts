@@ -1,16 +1,50 @@
-export function getCfCredentials(env?: Record<string, any>) {
-  const accountId = env?.CLOUDFLARE_ACCOUNT_ID || "c45409ee4154cf898c37375b1e96d910";
-  const token = env?.CLOUDFLARE_API_TOKEN || "";
-  return { accountId, token };
+export function getCfCredentials(env?: Record<string, any>, accountKeyOrId?: string) {
+  const isGeorge = accountKeyOrId === "george"
+    || accountKeyOrId === "01514e27c0cdd221efd91900be83fb16"
+    || accountKeyOrId === "georgeandersmail"
+    || accountKeyOrId === "georgeandersmail@gmail.com";
+
+  if (isGeorge) {
+    return {
+      accountId: env?.CLOUDFLARE_ACCOUNT_ID_GEORGE || "01514e27c0cdd221efd91900be83fb16",
+      token: env?.CLOUDFLARE_API_TOKEN_GEORGE || "",
+      key: "george",
+      name: "George Anders",
+      email: "georgeandersmail@gmail.com"
+    };
+  }
+
+  return {
+    accountId: env?.CLOUDFLARE_ACCOUNT_ID || "c45409ee4154cf898c37375b1e96d910",
+    token: env?.CLOUDFLARE_API_TOKEN || "",
+    key: "anders",
+    name: "Anders Jival",
+    email: "andersjival"
+  };
+}
+
+export function getAccountFromContext(context: any, explicit?: string): string {
+  if (explicit) return explicit;
+  const req = context?.request;
+  if (!req) return "";
+  const header = req.headers?.get("X-Cloudflare-Account");
+  if (header) return header;
+  try {
+    const url = new URL(req.url);
+    const param = url.searchParams.get("account");
+    if (param) return param;
+  } catch {}
+  return "";
 }
 
 export async function cfFetch(
   endpoint: string,
   method = "GET",
   body?: any,
-  env?: Record<string, any>
+  env?: Record<string, any>,
+  accountKey?: string
 ) {
-  const { accountId, token } = getCfCredentials(env);
+  const { accountId, token } = getCfCredentials(env, accountKey);
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}${endpoint}`;
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
@@ -26,8 +60,8 @@ export async function cfFetch(
   return await response.json() as any;
 }
 
-export async function cfGraphql(query: string, env?: Record<string, any>) {
-  const { token } = getCfCredentials(env);
+export async function cfGraphql(query: string, env?: Record<string, any>, accountKey?: string) {
+  const { token } = getCfCredentials(env, accountKey);
   const response = await fetch("https://api.cloudflare.com/client/v4/graphql", {
     method: "POST",
     headers: {
@@ -43,10 +77,11 @@ export async function runD1Sql(
   databaseId: string,
   sql: string,
   params: any[] = [],
-  env?: Record<string, any>
+  env?: Record<string, any>,
+  accountKey?: string
 ) {
   const payload = { sql, params };
-  const res = await cfFetch(`/d1/database/${databaseId}/query`, "POST", payload, env);
+  const res = await cfFetch(`/d1/database/${databaseId}/query`, "POST", payload, env, accountKey);
   if (!res.success) {
     const errorMsg = res.errors?.map((e: any) => e.message).join(", ") || "D1 Query Error";
     throw new Error(errorMsg);

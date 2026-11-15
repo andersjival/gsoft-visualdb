@@ -69,6 +69,8 @@ export const App: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-[#121212] text-neutral-100 font-sans">
       <Navbar
         selectedDb={db.selectedDb}
+        account={db.account}
+        onSwitchAccount={db.switchAccount}
         onOpenSql={() => setIsViewingSql(true)}
         onSelectMainDb={db.selectMainDb}
         onSelectAiDb={db.selectAiDb}

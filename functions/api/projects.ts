@@ -1,5 +1,5 @@
 import { verifySessionToken } from "./_auth";
-import { cfFetch } from "./_cf";
+import { cfFetch, getAccountFromContext } from "./_cf";
 
 export const onRequestGet = async (context: any) => {
   const authHeader = context.request.headers.get("Authorization");
@@ -13,7 +13,8 @@ export const onRequestGet = async (context: any) => {
   }
 
   try {
-    const data = await cfFetch("/pages/projects", "GET", null, context.env);
+    const accountKey = getAccountFromContext(context);
+    const data = await cfFetch("/pages/projects", "GET", null, context.env, accountKey);
     if (!data.success) {
       throw new Error(data.errors?.[0]?.message || "Error al consultar Pages projects");
     }

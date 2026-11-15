@@ -1,9 +1,11 @@
 import React from "react";
 import { Database, Terminal, LogOut, Bot, HardDrive, ExternalLink } from "lucide-react";
-import { D1Database } from "../types";
+import { D1Database, AccountKey } from "../types";
 
 interface NavbarProps {
   selectedDb: D1Database | null;
+  account: AccountKey;
+  onSwitchAccount: (acc: AccountKey) => void;
   onOpenSql: () => void;
   onSelectMainDb: () => void;
   onSelectAiDb: () => void;
@@ -13,6 +15,8 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({
   selectedDb,
+  account,
+  onSwitchAccount,
   onOpenSql,
   onSelectMainDb,
   onSelectAiDb,
@@ -25,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-30 bg-[#171717] border-b border-[#262626]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        {/* Brand */}
+        {/* Brand & Account Switcher */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-[#222222] border border-[#2e2e2e] flex items-center justify-center text-neutral-300">
             <HardDrive className="w-4 h-4 text-[#3ecf8e]" />
@@ -37,15 +41,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                 VisualDB
               </span>
             </div>
-            <p className="text-[11px] text-neutral-400 hidden sm:block">
-              Cuenta: <span className="text-neutral-300 font-mono">Anders Jival</span>
-            </p>
+            {/* Selector de Cuenta Cloudflare */}
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-[11px] text-neutral-400">Cuenta:</span>
+              <select
+                value={account}
+                onChange={(e) => onSwitchAccount(e.target.value as AccountKey)}
+                title="Cambiar cuenta de Cloudflare (Anders Jival / George Anders)"
+                className="text-[11px] font-mono bg-[#202020] hover:bg-[#282828] text-[#3ecf8e] border border-[#2e2e2e] hover:border-[#3ecf8e]/50 rounded-lg px-1.5 py-0.5 outline-none cursor-pointer transition font-medium"
+              >
+                <option value="anders" className="bg-[#1c1c1c] text-white">Anders Jival</option>
+                <option value="george" className="bg-[#1c1c1c] text-white">georgeandersmail@gmail.com</option>
+              </select>
+            </div>
           </div>
         </div>
 
         {/* Center: The Two Primary Action Buttons */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Botón 1: Visualizar la base de datos */}
           <button
             onClick={onSelectMainDb}
             title="Visualizar la base de datos principal de byfiocr"
@@ -59,10 +72,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>Visualizar la base de datos</span>
           </button>
 
-          {/* Botón 2: Visualizar la base de datos de IA */}
           <button
             onClick={onSelectAiDb}
-            title="Visualizar la base de datos del agente de IA conectado a la API oficial"
+            title="Visualizar la base de datos del agente de IA"
             className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold transition border ${
               isAiActive
                 ? "bg-purple-900/20 text-purple-300 border-purple-500/60 ring-1 ring-purple-500/30 shadow-sm"
@@ -74,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* Right: SQL Console & Logout */}
+        {/* Right: Actions & Logout */}
         <div className="flex items-center gap-2 sm:gap-3">
           <a
             href="https://byfiocr.pages.dev"

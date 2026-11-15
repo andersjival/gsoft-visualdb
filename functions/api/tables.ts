@@ -1,5 +1,5 @@
 import { verifySessionToken } from "./_auth";
-import { runD1Sql } from "./_cf";
+import { runD1Sql, getAccountFromContext } from "./_cf";
 
 export const onRequestGet = async (context: any) => {
   const authHeader = context.request.headers.get("Authorization");
@@ -23,14 +23,15 @@ export const onRequestGet = async (context: any) => {
   }
 
   try {
+    const accountKey = getAccountFromContext(context);
     const sql = "SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name;";
-    const queryRes = await runD1Sql(dbId, sql, [], context.env);
+    const queryRes = await runD1Sql(dbId, sql, [], context.env, accountKey);
     const tableNames: string[] = queryRes.results.map((r: any) => r.name);
 
     const tables = await Promise.all(
       tableNames.map(async (name) => {
         try {
-          const countRes = await runD1Sql(dbId, `SELECT COUNT(*) as count FROM "${name}";`, [], context.env);
+          const countRes = await runD1Sql(dbId, `SELECT COUNT(*) as count FROM "${name}";`, [], context.env, accountKey);
           const rowCount = countRes.results[0]?.count ?? 0;
           return { name, rowCount };
         } catch {
@@ -42,7 +43,7 @@ export const onRequestGet = async (context: any) => {
     // Si tiene site_metrics, agregar vista directa de usuarios registrados al inicio
     if (tableNames.includes("site_metrics")) {
       try {
-        const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env);
+        const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env, accountKey);
         if (uRes.results[0]?.data) {
           const parsed = JSON.parse(uRes.results[0].data);
           tables.unshift({ name: "registered_users", rowCount: Array.isArray(parsed) ? parsed.length : 0 });

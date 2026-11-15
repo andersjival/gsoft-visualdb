@@ -49,6 +49,15 @@ export interface AuthState {
   user: string | null;
 }
 
+export type AccountKey = "anders" | "george";
+
+export interface CloudflareAccountInfo {
+  key: AccountKey;
+  name: string;
+  email: string;
+  accountId: string;
+}
+
 export interface AiApiMetrics {
   status: string;
   totalNeuronsToday: number;

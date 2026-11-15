@@ -1,5 +1,5 @@
 import { verifySessionToken } from "./_auth";
-import { runD1Sql } from "./_cf";
+import { runD1Sql, getAccountFromContext } from "./_cf";
 
 export const onRequestGet = async (context: any) => {
   const authHeader = context.request.headers.get("Authorization");
@@ -38,8 +38,9 @@ export const onRequestGet = async (context: any) => {
   }
 
   try {
+    const accountKey = getAccountFromContext(context);
     const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
-    const res = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env);
+    const res = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env, accountKey);
     const hasPk = res.results.some((c: any) => c.pk === 1);
     const columns = res.results.map((c: any) => {
       if (!hasPk && c.name === "id") return { ...c, pk: 1 };

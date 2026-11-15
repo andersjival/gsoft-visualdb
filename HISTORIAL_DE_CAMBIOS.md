@@ -13,6 +13,12 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ---
 
+### Versión 1.7.0 — Soporte Multi-Cuenta Cloudflare (Anders Jival & George Anders)
+- Selector interactivo de cuenta en la barra superior (`Navbar`): alternancia instantánea entre `Anders Jival` (`andersjival`) y `George Anders` (`georgeandersmail@gmail.com`).
+- Enrutamiento dinámico en `_cf.ts`: despacho transparente de peticiones y autenticación API por cuenta vía cabecera `X-Cloudflare-Account` y parámetros contextuales.
+- Carga y visualización de las bases de datos de George Anders (`byfiocr-db`, `fonticr-db`, `scanlead-db`, `clikchat-db`, `geosoft-db`, `dentalclik-db`, etc.) con soporte completo de CRUD, vista `ventas`, triggers y métricas en tiempo real.
+- Configuración segura de variables de entorno de producción en Cloudflare Pages (`CLOUDFLARE_ACCOUNT_ID_GEORGE` y `CLOUDFLARE_API_TOKEN_GEORGE`).
+
 ### Versión 1.6.0 — Métricas en Tiempo Real de Base de Datos, Solicitudes del Plan y Peso en Vivo
 - Endpoint `/api/db-metrics`: integración con Cloudflare D1 REST API y GraphQL Analytics (`d1AnalyticsAdaptiveGroups`) para telemetría en tiempo real.
 - Visualización de tamaño en tiempo real por base de datos (bytes formateados en B/KB/MB/GB) y comparativa contra el límite del plan (500 MB en D1 Free).

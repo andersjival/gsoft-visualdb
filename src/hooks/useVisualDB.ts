@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { D1Database, TableSummary, TableColumn, AiApiMetrics, DbPlanMetrics } from "../types";
-import { fetchDatabases, fetchTables, fetchTableData, mutateRow, fetchAiStatus, fetchDbMetrics } from "../services/api";
+import { D1Database, TableSummary, TableColumn, AiApiMetrics, DbPlanMetrics, AccountKey } from "../types";
+import { fetchDatabases, fetchTables, fetchTableData, mutateRow, fetchAiStatus, fetchDbMetrics, getActiveAccount, setActiveAccount } from "../services/api";
 
 export function useVisualDB() {
+  const [account, setAccount] = useState<AccountKey>(getActiveAccount());
   const [databases, setDatabases] = useState<D1Database[]>([]);
   const [selectedDb, setSelectedDb] = useState<D1Database | null>(null);
   const [tables, setTables] = useState<TableSummary[]>([]);
@@ -47,14 +48,40 @@ export function useVisualDB() {
       setError(null);
       const dbs = await fetchDatabases();
       setDatabases(dbs);
-      const mainDb = dbs.find(d => d.name === "byfiocr-db") || dbs[0];
-      if (mainDb && !selectedDb) setSelectedDb(mainDb);
+      const currentExists = dbs.some(d => d.uuid === selectedDb?.uuid);
+      if (!currentExists) {
+        const mainDb = dbs.find(d => d.name === "byfiocr-db") || dbs[0] || null;
+        setSelectedDb(mainDb);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   }, [selectedDb]);
+
+  const switchAccount = useCallback(async (newAccount: AccountKey) => {
+    setActiveAccount(newAccount);
+    setAccount(newAccount);
+    setSelectedDb(null);
+    setTables([]);
+    setSelectedTable(null);
+    setRows([]);
+    setColumns([]);
+    setMetrics(null);
+    try {
+      setLoading(true);
+      setError(null);
+      const dbs = await fetchDatabases();
+      setDatabases(dbs);
+      const mainDb = dbs.find(d => d.name === "byfiocr-db") || dbs[0] || null;
+      setSelectedDb(mainDb);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const loadTables = useCallback(async (db: D1Database) => {
     try {
@@ -126,6 +153,7 @@ export function useVisualDB() {
   };
 
   return {
+    account, switchAccount,
     databases, selectedDb, setSelectedDb, selectMainDb, selectAiDb,
     tables, selectedTable, setSelectedTable,
     columns, rows, totalRows, page, setPage, limit, setLimit,

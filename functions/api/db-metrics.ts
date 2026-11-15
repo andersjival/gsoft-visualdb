@@ -1,5 +1,5 @@
 import { verifySessionToken } from "./_auth";
-import { cfFetch, cfGraphql, getCfCredentials } from "./_cf";
+import { cfFetch, cfGraphql, getCfCredentials, getAccountFromContext } from "./_cf";
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
@@ -31,10 +31,11 @@ export const onRequestGet = async (context: any) => {
   }
 
   try {
-    const { accountId } = getCfCredentials(context.env);
+    const accountKey = getAccountFromContext(context);
+    const { accountId } = getCfCredentials(context.env, accountKey);
 
     // 1. Live Database Info (file_size, num_tables, etc.)
-    const dbRes = await cfFetch(`/d1/database/${dbId}`, "GET", null, context.env);
+    const dbRes = await cfFetch(`/d1/database/${dbId}`, "GET", null, context.env, accountKey);
     if (!dbRes.success) {
       throw new Error(dbRes.errors?.[0]?.message || "No se pudo obtener información de la base de datos");
     }
@@ -62,7 +63,7 @@ export const onRequestGet = async (context: any) => {
       }
     `;
 
-    const gqlRes = await cfGraphql(gqlQuery, context.env);
+    const gqlRes = await cfGraphql(gqlQuery, context.env, accountKey);
     const accountData = gqlRes?.data?.viewer?.accounts?.[0];
     const todayStats = accountData?.today?.[0] || { count: 0, sum: { readQueries: 0, writeQueries: 0, rowsRead: 0, rowsWritten: 0 } };
     const monthStats = accountData?.month?.[0] || { count: 0, sum: { readQueries: 0, writeQueries: 0, rowsRead: 0, rowsWritten: 0 } };

@@ -1,5 +1,5 @@
 import React from "react";
-import { Database, Terminal, LogOut, Bot, HardDrive, ExternalLink, Cloud } from "lucide-react";
+import { Database, Terminal, LogOut, Bot, HardDrive, ExternalLink, Cloud, Zap } from "lucide-react";
 import { D1Database, AccountKey } from "../types";
 
 interface NavbarProps {
@@ -9,6 +9,7 @@ interface NavbarProps {
   onOpenSql: () => void;
   onSelectMainDb: () => void;
   onSelectAiDb: () => void;
+  onOpenNeuronsHistory?: () => void;
   activeTab?: "database" | "r2";
   onSelectR2?: () => void;
   onLogout: () => void;
@@ -22,6 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSql,
   onSelectMainDb,
   onSelectAiDb,
+  onOpenNeuronsHistory,
   activeTab = "database",
   onSelectR2,
   onLogout,
@@ -89,6 +91,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Bot className={`w-3.5 h-3.5 ${isAiActive ? "text-purple-400 animate-pulse" : "text-neutral-400"}`} />
             <span>Visualizar la base de datos de IA</span>
           </button>
+
+          {onOpenNeuronsHistory && (
+            <button
+              onClick={onOpenNeuronsHistory}
+              title="Historial de neuronas gastadas y cálculo de costos en tiempo real"
+              className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold transition border bg-amber-950/25 hover:bg-amber-950/45 text-amber-300 border-amber-500/40 hover:border-amber-400 shadow-sm"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Neuronas & Costos</span>
+            </button>
+          )}
 
           {onSelectR2 && (
             <button

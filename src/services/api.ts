@@ -1,5 +1,5 @@
 import { getStoredToken } from "./auth";
-import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, DbPlanMetrics, AccountKey, R2StorageData } from "../types";
+import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, AiStatusResponse, DbPlanMetrics, AccountKey, R2StorageData } from "../types";
 
 let activeAccount: AccountKey = (localStorage.getItem("gsoft_active_account") as AccountKey) || "george";
 
@@ -110,17 +110,15 @@ export async function executeSqlQuery(dbId: string, sql: string, params: any[] =
   return data;
 }
 
-export async function fetchAiStatus(): Promise<{
-  online: boolean;
-  endpoint: string;
-  summary: Partial<AiApiMetrics>;
-}> {
+export async function fetchAiStatus(): Promise<AiStatusResponse> {
   const res = await fetch("/api/ai-status", { headers: getHeaders() });
   const data = await res.json();
   return {
     online: data.online ?? false,
     endpoint: data.endpoint || "https://byfiocr.pages.dev/api/ai/metrics",
-    summary: data.summary || {}
+    summary: data.summary || {},
+    daily: data.daily || [],
+    neuronLogs: data.neuronLogs || []
   };
 }
 

@@ -58,14 +58,51 @@ export interface CloudflareAccountInfo {
   accountId: string;
 }
 
+export interface NeuronLogItem {
+  id: string;
+  date: string;
+  hour: string;
+  model: string;
+  role: string;
+  action: string;
+  neurons: number;
+  costUsd: number;
+  createdAt: string;
+}
+
+export interface DailyNeuronItem {
+  date: string;
+  neurons: number;
+  queries: number;
+  opens: number;
+  voiceNotes: number;
+  costUsd: number;
+}
+
 export interface AiApiMetrics {
-  status: string;
+  status?: string;
   totalNeuronsToday: number;
   totalNeuronsMonth: number;
   totalMessagesAnswered: number;
   totalChatOpens: number;
+  totalVoiceNotes?: number;
   remainingNeuronsToday: number;
+  freeTierDailyLimit?: number;
+  quotaUsedPercent?: number;
+  todayCostUsd?: number;
+  monthCostUsd?: number;
+  ratePer1kNeurons?: number;
+  accountEmail?: string;
+  accountPlan?: string;
   serverTimestamp?: string;
+}
+
+export interface AiStatusResponse {
+  online: boolean;
+  endpoint: string;
+  summary: Partial<AiApiMetrics>;
+  daily?: DailyNeuronItem[];
+  neuronLogs?: NeuronLogItem[];
 }
 
 export interface DbPlanMetrics {

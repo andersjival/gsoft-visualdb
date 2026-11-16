@@ -6,12 +6,14 @@ interface AiStatusBannerProps {
   online: boolean;
   metrics: Partial<AiApiMetrics> | null;
   onRefresh: () => void;
+  onOpenNeuronsHistory?: () => void;
 }
 
 export const AiStatusBanner: React.FC<AiStatusBannerProps> = ({
   online,
   metrics,
-  onRefresh
+  onRefresh,
+  onOpenNeuronsHistory,
 }) => {
   return (
     <div className="bg-[#151515] border-b border-[#262626] p-3 sm:px-6">
@@ -63,6 +65,17 @@ export const AiStatusBanner: React.FC<AiStatusBannerProps> = ({
                 </span>
               </div>
             </div>
+          )}
+
+          {onOpenNeuronsHistory && (
+            <button
+              onClick={onOpenNeuronsHistory}
+              title="Ver desglose detallado de neuronas y costos estimados"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 font-semibold text-xs transition shadow-sm"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Historial & Costos</span>
+            </button>
           )}
 
           <button

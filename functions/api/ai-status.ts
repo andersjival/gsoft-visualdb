@@ -28,7 +28,10 @@ export const onRequestGet = async (context: any) => {
         online: true,
         endpoint: aiApiUrl,
         summary: data.summary || {},
-        periods: data.periods || {}
+        periods: data.periods || {},
+        hourly: data.hourly || [],
+        daily: data.daily || [],
+        neuronLogs: data.neuronLogs || []
       }),
       { headers: { "Content-Type": "application/json" } }
     );

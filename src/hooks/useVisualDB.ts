@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { D1Database, TableSummary, TableColumn, AiApiMetrics, DbPlanMetrics, AccountKey } from "../types";
+import { D1Database, TableSummary, TableColumn, AiApiMetrics, DbPlanMetrics, AccountKey, DailyNeuronItem, NeuronLogItem } from "../types";
 import { fetchDatabases, fetchTables, fetchTableData, mutateRow, fetchAiStatus, fetchDbMetrics, getActiveAccount, setActiveAccount } from "../services/api";
 
 export function useVisualDB() {
@@ -24,6 +24,8 @@ export function useVisualDB() {
 
   const [aiOnline, setAiOnline] = useState(false);
   const [aiMetrics, setAiMetrics] = useState<Partial<AiApiMetrics> | null>(null);
+  const [aiDaily, setAiDaily] = useState<DailyNeuronItem[]>([]);
+  const [aiNeuronLogs, setAiNeuronLogs] = useState<NeuronLogItem[]>([]);
 
   const [metrics, setMetrics] = useState<DbPlanMetrics | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(false);
@@ -122,6 +124,8 @@ export function useVisualDB() {
     const res = await fetchAiStatus();
     setAiOnline(res.online);
     setAiMetrics(res.summary);
+    setAiDaily(res.daily || []);
+    setAiNeuronLogs(res.neuronLogs || []);
   }, []);
 
   useEffect(() => {
@@ -160,7 +164,7 @@ export function useVisualDB() {
     search, setSearch, sortCol, setSortCol, sortOrder, setSortOrder,
     loading, loadingTables, error, setError,
     loadDatabases, loadTableData, deleteRow,
-    aiOnline, aiMetrics, checkAiApi,
+    aiOnline, aiMetrics, aiDaily, aiNeuronLogs, checkAiApi,
     metrics, loadingMetrics, loadMetrics
   };
 }

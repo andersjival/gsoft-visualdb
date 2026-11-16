@@ -15,6 +15,7 @@ import { AiStatusBanner } from "./components/AiStatusBanner";
 import { JsonViewerModal } from "./components/JsonViewerModal";
 import { DbMetricsModal } from "./components/DbMetricsModal";
 import { R2StorageView } from "./components/R2StorageView";
+import { AiNeuronsModal } from "./components/AiNeuronsModal";
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(getStoredToken());
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
   const [isViewingSchema, setIsViewingSchema] = useState(false);
   const [isViewingSql, setIsViewingSql] = useState(false);
   const [isViewingMetrics, setIsViewingMetrics] = useState(false);
+  const [isViewingNeurons, setIsViewingNeurons] = useState(false);
   const [jsonModal, setJsonModal] = useState<{ title: string; data: string } | null>(null);
 
   const db = useVisualDB();
@@ -76,6 +78,7 @@ export const App: React.FC = () => {
         onOpenSql={() => setIsViewingSql(true)}
         onSelectMainDb={() => { setMainTab("database"); db.selectMainDb(); }}
         onSelectAiDb={() => { setMainTab("database"); db.selectAiDb(); }}
+        onOpenNeuronsHistory={() => { setIsViewingNeurons(true); db.checkAiApi(); }}
         activeTab={mainTab}
         onSelectR2={() => {
           setMainTab("r2");
@@ -107,7 +110,14 @@ export const App: React.FC = () => {
             onOpenMetrics={() => setIsViewingMetrics(true)}
             loading={db.loading}
           />
-          {isAiDb && <AiStatusBanner online={db.aiOnline} metrics={db.aiMetrics} onRefresh={db.checkAiApi} />}
+          {isAiDb && (
+            <AiStatusBanner
+              online={db.aiOnline}
+              metrics={db.aiMetrics}
+              onRefresh={db.checkAiApi}
+              onOpenNeuronsHistory={() => { setIsViewingNeurons(true); db.checkAiApi(); }}
+            />
+          )}
 
           <div className="flex-1 flex flex-col lg:flex-row min-h-0">
             <TableSidebar
@@ -151,6 +161,16 @@ export const App: React.FC = () => {
           loading={db.loadingMetrics}
           onRefresh={() => { if (db.selectedDb) db.loadMetrics(db.selectedDb.uuid); }}
           onClose={() => setIsViewingMetrics(false)}
+        />
+      )}
+      {isViewingNeurons && (
+        <AiNeuronsModal
+          metrics={db.aiMetrics}
+          daily={db.aiDaily}
+          logs={db.aiNeuronLogs}
+          loading={false}
+          onRefresh={db.checkAiApi}
+          onClose={() => setIsViewingNeurons(false)}
         />
       )}
       {jsonModal && <JsonViewerModal title={jsonModal.title} jsonData={jsonModal.data} onClose={() => setJsonModal(null)} />}

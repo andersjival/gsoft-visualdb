@@ -124,8 +124,8 @@ export const App: React.FC = () => {
               tables={db.tables}
               selectedTable={db.selectedTable}
               onSelectTable={(t) => switchTableCleanly(t)}
-              onOpenUsersDirectly={db.selectedDb?.name === "byfiocr-db" ? () => switchTableCleanly("registered_users") : undefined}
-              onOpenVentasDirectly={db.selectedDb?.name === "byfiocr-db" ? () => switchTableCleanly("ventas") : undefined}
+              onOpenUsersDirectly={(db.selectedDb?.name === "byfiocr-v2-db" || db.selectedDb?.name === "byfiocr-db") ? () => switchTableCleanly("registered_users") : undefined}
+              onOpenVentasDirectly={(db.selectedDb?.name === "byfiocr-v2-db" || db.selectedDb?.name === "byfiocr-db") ? () => switchTableCleanly("ventas") : undefined}
               loading={db.loadingTables}
             />
         <TableView

@@ -52,7 +52,7 @@ export function useVisualDB() {
       setDatabases(dbs);
       const currentExists = dbs.some(d => d.uuid === selectedDb?.uuid);
       if (!currentExists) {
-        const mainDb = dbs.find(d => d.name === "byfiocr-db") || dbs[0] || null;
+        const mainDb = dbs.find(d => d.name === "byfiocr-v2-db") || dbs.find(d => d.name === "byfiocr-db") || dbs[0] || null;
         setSelectedDb(mainDb);
       }
     } catch (err: any) {
@@ -76,7 +76,7 @@ export function useVisualDB() {
       setError(null);
       const dbs = await fetchDatabases();
       setDatabases(dbs);
-      const mainDb = dbs.find(d => d.name === "byfiocr-db") || dbs[0] || null;
+      const mainDb = dbs.find(d => d.name === "byfiocr-v2-db") || dbs.find(d => d.name === "byfiocr-db") || dbs[0] || null;
       setSelectedDb(mainDb);
     } catch (err: any) {
       setError(err.message);
@@ -141,7 +141,7 @@ export function useVisualDB() {
   }, [selectedDb, selectedTable, page, limit, search, sortCol, sortOrder, loadTableData]);
 
   const selectMainDb = () => {
-    const main = databases.find(d => d.name === "byfiocr-db");
+    const main = databases.find(d => d.name === "byfiocr-v2-db") || databases.find(d => d.name === "byfiocr-db");
     if (main) { setSelectedDb(main); setPage(1); setSearch(""); }
   };
 

@@ -29,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   userName
 }) => {
-  const isMainActive = activeTab === "database" && selectedDb?.name === "byfiocr-db";
+  const isMainActive = activeTab === "database" && (selectedDb?.name === "byfiocr-v2-db" || selectedDb?.name === "byfiocr-db");
   const isAiActive = activeTab === "database" && (selectedDb?.name === "byfio-agent-db" || (selectedDb?.name.includes("agent") ?? false));
   const isR2Active = activeTab === "r2";
 

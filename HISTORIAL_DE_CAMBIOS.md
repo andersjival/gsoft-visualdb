@@ -20,6 +20,7 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
   - Actualización de credenciales y comandos en [`GEMINI.md`](file:///c:/Users/User/Desktop/GeoSoft/CUENTA%20ANDERSJIVAL/CLIENTES%20WEBS/GSOFT-VISUALDB/GEMINI.md) y [`CLAVES GEORGEANDERSMAIL.txt`](file:///c:/Users/User/Desktop/GeoSoft/CUENTA%20ANDERSJIVAL/CLIENTES%20WEBS/GSOFT-VISUALDB/CLAVES%20GEORGEANDERSMAIL.txt).
 - **Protección Perimetral Cloudflare Zero Trust (Access)**:
   - Creación de aplicación de acceso `self_hosted` en Cloudflare Access vinculada a `gsoft-visualdb.pages.dev`.
+  - Configuración del proveedor de identidad oficial One-Time PIN (`onetimepin`) e integración de `same_site_cookie_attribute: none` para erradicar bucles de redirección.
   - Política de acceso exclusiva con código PIN de un solo uso (One-Time PIN) restringida estrictamente a los 3 correos autorizados: `web@byfiocr.com`, `pampo32@gmail.com` y `georgeandersmail@gmail.com`.
 - **Corrección de Token y Conectividad D1 (`functions/api/_cf.ts` & `src/services/api.ts`)**:
   - Corrección de caracteres corruptos en la firma Base64 del token de autenticación de George Anders, resolviendo el error `401 Authentication Error`.

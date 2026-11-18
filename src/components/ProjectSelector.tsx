@@ -73,7 +73,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
         <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-thin">
           {databases.map((db) => {
             const isSelected = selectedDb?.uuid === db.uuid;
-            const isMain = db.name === "byfiocr-db";
+            const isMain = db.name === "byfiocr-v2-db" || db.name === "byfiocr-db";
             const isAi = db.name === "byfio-agent-db" || db.name.includes("agent");
             const shortSize = formatShortSize(db.file_size);
 

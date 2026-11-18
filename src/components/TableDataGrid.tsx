@@ -71,7 +71,7 @@ export const TableDataGrid: React.FC<TableDataGridProps> = ({
                 <div className="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition">
                   {isUsersTable && onFilterByUser && (
                     <button
-                      onClick={() => onFilterByUser(row.email || row.phone || row.name)}
+                      onClick={() => onFilterByUser(row.email || row.telefono || row.nombre_completo || row.phone || row.name || String(row.id || ""))}
                       title="Ver ventas de este usuario"
                       className="p-1 text-neutral-400 hover:text-emerald-400 hover:bg-emerald-950/30 rounded"
                     >

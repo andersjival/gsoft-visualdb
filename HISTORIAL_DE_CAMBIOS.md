@@ -13,6 +13,19 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ---
 
+### Versión 1.10.0 — Soporte de Tabla Física Relacional registered_users (D1 V2)
+- **Corrección de Carga de Usuarios en `byfiocr-v2-db` (`functions/api/table-data.ts`)**:
+  - Eliminación del secuestro incondicional de `registered_users` hacia `site_metrics` (`app_registered_users`), permitiendo consultar directamente la tabla relacional física de D1 con sus 10 columnas maestras (`id`, `nombre_completo`, `email`, `telefono`, `direccion`, `notas`, `password_hash`, `activo`, `fecha_registro`, `ultimo_login`).
+  - Mantenimiento de fallback retrocompatible a `site_metrics` únicamente para bases de datos heredadas (V1) donde no exista como tabla física en SQLite.
+- **Sincronización de Esquema y CRUD (`functions/api/schema.ts` y `functions/api/mutate.ts`)**:
+  - `schema.ts`: consulta dinámica con `PRAGMA table_info` sobre la tabla física, reconociendo `id` (INTEGER PRIMARY KEY) y todas sus columnas relacionales.
+  - `mutate.ts`: verificación de existencia física antes de mutar; operaciones `INSERT`, `UPDATE` y `DELETE` se aplican de forma atómica sobre la tabla SQL real.
+- **Contador y Sidebar (`functions/api/tables.ts` & `src/components/TableDataGrid.tsx`)**:
+  - Prevención de duplicados en el listado de tablas respetando el recuento real de filas (18 usuarios).
+  - Soporte multidominio de filtros de ventas por cliente utilizando `email`, `telefono`, `nombre_completo` o `id`.
+
+---
+
 ### Versión 1.9.0 — Migración a Cuenta George Anders & Blindaje de Acceso Cloudflare Zero Trust
 - **Migración Integral de Cuenta Cloudflare Pages (`gsoft-visualdb`)**:
   - Reubicación y despliegue del proyecto Pages desde la cuenta `andersjival` hacia la cuenta `georgeandersmail` (`01514e27c0cdd221efd91900be83fb16`), manteniendo el subdominio de producción `https://gsoft-visualdb.pages.dev`.

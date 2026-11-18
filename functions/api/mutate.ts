@@ -24,8 +24,14 @@ export const onRequestPost = async (context: any) => {
       });
     }
 
-    // Mutaciones directas sobre Usuarios Registrados
-    if (table === "registered_users") {
+    const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
+
+    // Verificar si la tabla existe realmente en la base de datos física
+    const tableInfo = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env, accountKey);
+    const isRealTable = Boolean(tableInfo.results && tableInfo.results.length > 0);
+
+    // Fallback exclusivo para bases de datos viejas donde registered_users no existe como tabla física
+    if (!isRealTable && table === "registered_users") {
       const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env, accountKey);
       let users: any[] = [];
       if (uRes.results[0]?.data) {
@@ -57,8 +63,6 @@ export const onRequestPost = async (context: any) => {
         headers: { "Content-Type": "application/json" }
       });
     }
-
-    const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
 
     if (action === "delete") {
       if (!pkColumn || pkValue === undefined) {

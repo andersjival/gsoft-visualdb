@@ -23,31 +23,33 @@ export const onRequestGet = async (context: any) => {
     });
   }
 
-  if (table === "registered_users") {
-    const virtualCols = [
-      { cid: 0, name: "email", type: "TEXT", notnull: 1, dflt_value: null, pk: 1 },
-      { cid: 1, name: "name", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
-      { cid: 2, name: "phone", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
-      { cid: 3, name: "idCard", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
-      { cid: 4, name: "address", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
-      { cid: 5, name: "password", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 }
-    ];
-    return new Response(JSON.stringify({ success: true, columns: virtualCols }), {
-      headers: { "Content-Type": "application/json" }
-    });
-  }
-
   try {
     const accountKey = getAccountFromContext(context);
     const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
     const res = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env, accountKey);
-    const hasPk = res.results.some((c: any) => c.pk === 1);
-    const columns = res.results.map((c: any) => {
+    let columns = res.results || [];
+
+    if (columns.length === 0 && table === "registered_users") {
+      const virtualCols = [
+        { cid: 0, name: "email", type: "TEXT", notnull: 1, dflt_value: null, pk: 1 },
+        { cid: 1, name: "name", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
+        { cid: 2, name: "phone", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
+        { cid: 3, name: "idCard", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
+        { cid: 4, name: "address", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
+        { cid: 5, name: "password", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 }
+      ];
+      return new Response(JSON.stringify({ success: true, columns: virtualCols }), {
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    const hasPk = columns.some((c: any) => c.pk === 1);
+    const processedColumns = columns.map((c: any) => {
       if (!hasPk && c.name === "id") return { ...c, pk: 1 };
       return c;
     });
 
-    return new Response(JSON.stringify({ success: true, columns }), {
+    return new Response(JSON.stringify({ success: true, columns: processedColumns }), {
       headers: { "Content-Type": "application/json" }
     });
   } catch (err: any) {

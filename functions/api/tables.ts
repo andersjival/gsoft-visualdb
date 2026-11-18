@@ -40,8 +40,8 @@ export const onRequestGet = async (context: any) => {
       })
     );
 
-    // Si tiene site_metrics, agregar vista directa de usuarios registrados al inicio
-    if (tableNames.includes("site_metrics")) {
+    // Si tiene site_metrics y NO existe como tabla física, agregar vista virtual de usuarios registrados al inicio
+    if (!tableNames.includes("registered_users") && tableNames.includes("site_metrics")) {
       try {
         const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env, accountKey);
         if (uRes.results[0]?.data) {

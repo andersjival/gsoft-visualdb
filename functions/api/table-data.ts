@@ -29,9 +29,13 @@ export const onRequestGet = async (context: any) => {
     });
   }
 
-  // Soporte directo para Usuarios Registrados
-  if (table === "registered_users") {
-    try {
+  try {
+    const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
+    const schemaRes = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env, accountKey);
+    const columns = schemaRes.results || [];
+
+    // Fallback exclusivo para bases de datos heredadas donde registered_users no existe como tabla física
+    if (columns.length === 0 && table === "registered_users") {
       const uRes = await runD1Sql(dbId, "SELECT data FROM site_metrics WHERE id = 'app_registered_users' LIMIT 1;", [], context.env, accountKey);
       let users: any[] = [];
       if (uRes.results[0]?.data) {
@@ -54,7 +58,7 @@ export const onRequestGet = async (context: any) => {
       const offset = (page - 1) * limit;
       const paginated = users.slice(offset, offset + limit);
 
-      const columns = [
+      const virtualColumns = [
         { cid: 0, name: "email", type: "TEXT", notnull: 1, dflt_value: null, pk: 1 },
         { cid: 1, name: "name", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
         { cid: 2, name: "phone", type: "TEXT", notnull: 0, dflt_value: null, pk: 0 },
@@ -64,30 +68,25 @@ export const onRequestGet = async (context: any) => {
       ];
 
       return new Response(
-        JSON.stringify({ success: true, columns, rows: paginated, total, page, limit }),
+        JSON.stringify({ success: true, columns: virtualColumns, rows: paginated, total, page, limit }),
         { headers: { "Content-Type": "application/json" } }
       );
-    } catch (err: any) {
-      return new Response(JSON.stringify({ success: false, error: err.message }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
     }
-  }
 
-  try {
-    const cleanTable = table.replace(/[^a-zA-Z0-9_]/g, "");
-    const schemaRes = await runD1Sql(dbId, `PRAGMA table_info("${cleanTable}");`, [], context.env, accountKey);
-    const columns = schemaRes.results;
+    const hasPk = columns.some((c: any) => c.pk === 1);
+    const mappedColumns = columns.map((c: any) => {
+      if (!hasPk && c.name === "id") return { ...c, pk: 1 };
+      return c;
+    });
 
     let whereClause = "";
     const params: any[] = [];
-    if (search && columns.length > 0) {
-      const textCols = columns
+    if (search && mappedColumns.length > 0) {
+      const textCols = mappedColumns
         .filter((c: any) => ["TEXT", "VARCHAR", "CHAR", "STRING", ""].includes((c.type || "").toUpperCase()))
         .map((c: any) => c.name);
       
-      const targetCols = textCols.length > 0 ? textCols : columns.slice(0, 3).map((c: any) => c.name);
+      const targetCols = textCols.length > 0 ? textCols : mappedColumns.slice(0, 3).map((c: any) => c.name);
       whereClause = `WHERE ` + targetCols.map((c: string) => `CAST("${c}" AS TEXT) LIKE ?`).join(" OR ");
       targetCols.forEach(() => params.push(`%${search}%`));
     }
@@ -97,7 +96,7 @@ export const onRequestGet = async (context: any) => {
     const total = countRes.results[0]?.total ?? 0;
 
     let orderClause = "";
-    if (sortCol && columns.some((c: any) => c.name === sortCol)) {
+    if (sortCol && mappedColumns.some((c: any) => c.name === sortCol)) {
       orderClause = `ORDER BY "${sortCol}" ${sortOrder}`;
     }
 
@@ -108,7 +107,7 @@ export const onRequestGet = async (context: any) => {
     return new Response(
       JSON.stringify({
         success: true,
-        columns,
+        columns: mappedColumns,
         rows: dataRes.results,
         total,
         page,

@@ -1,5 +1,5 @@
 import { getStoredToken } from "./auth";
-import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, AiStatusResponse, DbPlanMetrics, AccountKey, R2StorageData } from "../types";
+import { D1Database, PagesProject, TableColumn, TableSummary, QueryResponse, AiApiMetrics, AiStatusResponse, DbPlanMetrics, AccountKey, R2StorageData, KvStorageData } from "../types";
 
 let activeAccount: AccountKey = (localStorage.getItem("gsoft_active_account") as AccountKey) || "george";
 
@@ -137,6 +137,21 @@ export async function fetchR2Storage(bucket?: string, account?: AccountKey): Pro
     headers: {
       ...getHeaders(),
       ...(account ? { "X-Cloudflare-Account": account } : {})
+    }
+  });
+  const data = await res.json();
+  return data;
+}
+
+export async function fetchKvStorage(params?: { namespace?: string; key?: string; account?: AccountKey }): Promise<KvStorageData> {
+  const query = new URLSearchParams();
+  if (params?.namespace) query.set("namespace", params.namespace);
+  if (params?.key) query.set("key", params.key);
+  if (params?.account) query.set("account", params.account);
+  const res = await fetch(`/api/kv-storage?${query.toString()}`, {
+    headers: {
+      ...getHeaders(),
+      ...(params?.account ? { "X-Cloudflare-Account": params.account } : {})
     }
   });
   const data = await res.json();

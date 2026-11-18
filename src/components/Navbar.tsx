@@ -1,5 +1,5 @@
 import React from "react";
-import { Database, Terminal, LogOut, Bot, HardDrive, ExternalLink, Cloud, Zap } from "lucide-react";
+import { Database, Terminal, LogOut, Bot, HardDrive, ExternalLink, Cloud, Zap, Layers } from "lucide-react";
 import { D1Database, AccountKey } from "../types";
 
 interface NavbarProps {
@@ -10,8 +10,9 @@ interface NavbarProps {
   onSelectMainDb: () => void;
   onSelectAiDb: () => void;
   onOpenNeuronsHistory?: () => void;
-  activeTab?: "database" | "r2";
+  activeTab?: "database" | "r2" | "kv";
   onSelectR2?: () => void;
+  onSelectKv?: () => void;
   onLogout: () => void;
   userName: string | null;
 }
@@ -26,12 +27,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenNeuronsHistory,
   activeTab = "database",
   onSelectR2,
+  onSelectKv,
   onLogout,
   userName
 }) => {
   const isMainActive = activeTab === "database" && (selectedDb?.name === "byfiocr-v2-db" || selectedDb?.name === "byfiocr-db");
   const isAiActive = activeTab === "database" && (selectedDb?.name === "byfio-agent-db" || (selectedDb?.name.includes("agent") ?? false));
   const isR2Active = activeTab === "r2";
+  const isKvActive = activeTab === "kv";
 
   return (
     <header className="sticky top-0 z-30 bg-[#171717] border-b border-[#262626]">
@@ -115,9 +118,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Cloud className={`w-3.5 h-3.5 ${isR2Active ? "text-indigo-400" : "text-neutral-400"}`} />
               <span>Almacenamiento R2</span>
-              {account === "george" && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" title="R2 Activo en esta cuenta" />
-              )}
+            </button>
+          )}
+
+          {onSelectKv && (
+            <button
+              onClick={onSelectKv}
+              title="Visualizar namespaces y claves de Cloudflare Workers KV"
+              className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold transition border ${
+                isKvActive
+                  ? "bg-amber-950/40 text-amber-200 border-amber-500/60 ring-1 ring-amber-500/30 shadow-sm"
+                  : "bg-[#202020] hover:bg-[#262626] text-neutral-300 border-[#2e2e2e] hover:text-amber-300"
+              }`}
+            >
+              <Layers className={`w-3.5 h-3.5 ${isKvActive ? "text-amber-400" : "text-neutral-400"}`} />
+              <span>Almacenamiento KV</span>
             </button>
           )}
         </div>

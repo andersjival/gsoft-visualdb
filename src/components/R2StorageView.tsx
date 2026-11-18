@@ -86,17 +86,18 @@ export const R2StorageView: React.FC<R2StorageViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Switch rápido a George si está en Anders */}
-          {!isGeorge && (
-            <button
-              onClick={() => onSwitchAccount("george")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white transition shadow-sm"
-              title="R2 está activo en la cuenta de George Anders"
+          {/* Switch rápido entre cuentas */}
+          <div className="flex items-center gap-1.5 bg-[#202020] border border-[#2e2e2e] rounded-xl px-2 py-1">
+            <span className="text-[11px] text-neutral-400">Cuenta:</span>
+            <select
+              value={account}
+              onChange={(e) => onSwitchAccount(e.target.value as AccountKey)}
+              className="text-[11px] font-mono bg-transparent text-[#3ecf8e] outline-none cursor-pointer font-medium"
             >
-              <span>Ver en georgeandersmail</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          )}
+              <option value="george" className="bg-[#1c1c1c] text-white">George Anders</option>
+              <option value="anders" className="bg-[#1c1c1c] text-white">Anders Jival</option>
+            </select>
+          </div>
 
           <button
             onClick={() => loadData(selectedBucket || undefined)}

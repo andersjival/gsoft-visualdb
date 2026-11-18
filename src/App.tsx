@@ -15,13 +15,14 @@ import { AiStatusBanner } from "./components/AiStatusBanner";
 import { JsonViewerModal } from "./components/JsonViewerModal";
 import { DbMetricsModal } from "./components/DbMetricsModal";
 import { R2StorageView } from "./components/R2StorageView";
+import { KvStorageView } from "./components/KvStorageView";
 import { AiNeuronsModal } from "./components/AiNeuronsModal";
 
 export const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(getStoredToken());
   const [user, setUser] = useState<string | null>("Anders Jival");
   const [isAuthChecking, setIsAuthChecking] = useState(true);
-  const [mainTab, setMainTab] = useState<"database" | "r2">("database");
+  const [mainTab, setMainTab] = useState<"database" | "r2" | "kv">("database");
   const [editingRow, setEditingRow] = useState<Record<string, any> | null>(null);
   const [isInserting, setIsInserting] = useState(false);
   const [isViewingSchema, setIsViewingSchema] = useState(false);
@@ -80,12 +81,8 @@ export const App: React.FC = () => {
         onSelectAiDb={() => { setMainTab("database"); db.selectAiDb(); }}
         onOpenNeuronsHistory={() => { setIsViewingNeurons(true); db.checkAiApi(); }}
         activeTab={mainTab}
-        onSelectR2={() => {
-          setMainTab("r2");
-          if (db.account !== "george") {
-            db.switchAccount("george");
-          }
-        }}
+        onSelectR2={() => setMainTab("r2")}
+        onSelectKv={() => setMainTab("kv")}
         onLogout={() => { clearStoredToken(); setToken(null); }}
         userName={user}
       />
@@ -97,6 +94,11 @@ export const App: React.FC = () => {
           dbMetrics={db.metrics}
           selectedDbName={db.selectedDb?.name}
           onOpenDbMetrics={() => setIsViewingMetrics(true)}
+        />
+      ) : mainTab === "kv" ? (
+        <KvStorageView
+          account={db.account}
+          onSwitchAccount={db.switchAccount}
         />
       ) : (
         <>

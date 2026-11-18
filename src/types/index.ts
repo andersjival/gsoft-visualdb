@@ -172,3 +172,26 @@ export interface R2StorageData {
   usage: R2UsageMetrics | null;
   objects: R2ObjectItem[];
 }
+
+export interface KvNamespace {
+  id: string;
+  title: string;
+  supports_url_encoding?: boolean;
+}
+
+export interface KvKeyItem {
+  name: string;
+  expiration?: number;
+  metadata?: any;
+}
+
+export interface KvStorageData {
+  success: boolean;
+  error?: string;
+  account?: CloudflareAccountInfo;
+  namespaces: KvNamespace[];
+  selectedNamespace: string | null;
+  keys: KvKeyItem[];
+  selectedKey?: string | null;
+  selectedValue?: string | null;
+}

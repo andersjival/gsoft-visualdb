@@ -140,6 +140,27 @@ export function useVisualDB() {
     if (selectedDb && selectedTable) loadTableData();
   }, [selectedDb, selectedTable, page, limit, search, sortCol, sortOrder, loadTableData]);
 
+  // Revalidación automática al enfocar o volver a la pestaña (Solución 1)
+  useEffect(() => {
+    let lastRevalidation = 0;
+    const handleRevalidate = () => {
+      const now = Date.now();
+      if (now - lastRevalidation < 1500) return;
+      if (document.visibilityState === "visible" && selectedDb && selectedTable) {
+        lastRevalidation = now;
+        loadTableData();
+      }
+    };
+
+    window.addEventListener("focus", handleRevalidate);
+    document.addEventListener("visibilitychange", handleRevalidate);
+
+    return () => {
+      window.removeEventListener("focus", handleRevalidate);
+      document.removeEventListener("visibilitychange", handleRevalidate);
+    };
+  }, [selectedDb, selectedTable, loadTableData]);
+
   const selectMainDb = () => {
     const main = databases.find(d => d.name === "byfiocr-v2-db") || databases.find(d => d.name === "byfiocr-db");
     if (main) { setSelectedDb(main); setPage(1); setSearch(""); }

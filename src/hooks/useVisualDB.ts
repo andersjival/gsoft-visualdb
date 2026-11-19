@@ -152,8 +152,17 @@ export function useVisualDB() {
 
   const deleteRow = async (pkCol: string, pkVal: any) => {
     if (!selectedDb || !selectedTable) return;
-    await mutateRow({ dbId: selectedDb.uuid, table: selectedTable, action: "delete", pkColumn: pkCol, pkValue: pkVal });
-    await loadTableData();
+    try {
+      setLoading(true);
+      setError(null);
+      await mutateRow({ dbId: selectedDb.uuid, table: selectedTable, action: "delete", pkColumn: pkCol, pkValue: pkVal });
+      await loadTableData();
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {

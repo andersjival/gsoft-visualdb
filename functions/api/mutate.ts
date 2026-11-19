@@ -69,6 +69,31 @@ export const onRequestPost = async (context: any) => {
         throw new Error("pkColumn y pkValue requeridos para eliminar");
       }
       const cleanPk = pkColumn.replace(/[^a-zA-Z0-9_]/g, "");
+
+      // Si es registered_users o usuarios, limpiar y desvincular dependencias foráneas antes de borrar para garantizar control total
+      if (cleanTable === "registered_users") {
+        try {
+          let userId = pkValue;
+          if (cleanPk !== "id") {
+            const u = await runD1Sql(dbId, `SELECT id FROM registered_users WHERE "${cleanPk}" = ? LIMIT 1;`, [pkValue], context.env, accountKey);
+            userId = u.results[0]?.id ?? pkValue;
+          }
+          if (userId) {
+            await runD1Sql(dbId, `DELETE FROM apartados_abonos WHERE id_apartado IN (SELECT id_apartado FROM apartados WHERE id_usuario = ?);`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `DELETE FROM apartados WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `DELETE FROM curso_inscripciones WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `DELETE FROM direcciones_envio WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `DELETE FROM user_passkeys WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `UPDATE orders SET id_usuario = NULL WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `UPDATE drive_course_purchases SET id_usuario = NULL WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `UPDATE user_support_tickets SET id_usuario = NULL WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `UPDATE course_downloads SET id_usuario = NULL WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `UPDATE workshop_waitlist SET id_usuario = NULL WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+            await runD1Sql(dbId, `UPDATE agent_conversations SET id_usuario = NULL WHERE id_usuario = ?;`, [userId], context.env, accountKey).catch(() => {});
+          }
+        } catch {}
+      }
+
       const sql = `DELETE FROM "${cleanTable}" WHERE "${cleanPk}" = ?;`;
       const res = await runD1Sql(dbId, sql, [pkValue], context.env, accountKey);
       return new Response(JSON.stringify({ success: true, meta: res.meta }), {

@@ -139,15 +139,23 @@ export const App: React.FC = () => {
           limit={db.limit}
           search={db.search}
           loading={db.loading}
+          error={db.error}
+          onClearError={() => db.setError(null)}
           onPageChange={db.setPage}
           onSearchChange={db.setSearch}
           onRefresh={db.loadTableData}
           onOpenInsert={() => setIsInserting(true)}
           onOpenSchema={() => setIsViewingSchema(true)}
           onEditRow={(row) => setEditingRow(row)}
-          onDeleteRow={(row) => {
+          onDeleteRow={async (row) => {
             const pk = db.columns.find((c) => c.pk === 1) || db.columns[0];
-            if (window.confirm(`¿Eliminar registro con ${pk.name} = "${row[pk.name]}"?`)) db.deleteRow(pk.name, row[pk.name]);
+            if (window.confirm(`¿Eliminar registro con ${pk.name} = "${row[pk.name]}"?`)) {
+              try {
+                await db.deleteRow(pk.name, row[pk.name]);
+              } catch (err: any) {
+                alert(`Error al eliminar: ${err.message}`);
+              }
+            }
           }}
           onInspectJson={(title, data) => setJsonModal({ title, data })}
           onCellSave={handleCellSave}

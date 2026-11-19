@@ -12,6 +12,8 @@ interface TableViewProps {
   limit: number;
   search: string;
   loading: boolean;
+  error?: string | null;
+  onClearError?: () => void;
   onPageChange: (newPage: number) => void;
   onSearchChange: (query: string) => void;
   onRefresh: () => void;
@@ -25,7 +27,7 @@ interface TableViewProps {
 }
 
 export const TableView: React.FC<TableViewProps> = ({
-  tableName, columns, rows, totalRows, page, limit, search, loading,
+  tableName, columns, rows, totalRows, page, limit, search, loading, error, onClearError,
   onPageChange, onSearchChange, onRefresh, onOpenInsert, onOpenSchema,
   onEditRow, onDeleteRow, onInspectJson, onCellSave, onFilterByUser
 }) => {
@@ -50,6 +52,16 @@ export const TableView: React.FC<TableViewProps> = ({
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-[#121212] overflow-hidden border-t sm:border-t-0 sm:border-l border-[#262626]">
       {/* Top Header - Altura Fija Absoluta para Prevenir Saltos */}
+      {error && (
+        <div className="bg-rose-950/90 border-b border-rose-800 text-rose-200 px-4 py-2 text-xs flex items-center justify-between gap-2 z-20">
+          <span className="font-mono truncate">{error}</span>
+          {onClearError && (
+            <button onClick={onClearError} className="text-rose-300 hover:text-white text-xs font-semibold px-2 py-0.5 rounded bg-rose-900/60 border border-rose-700/50 flex-shrink-0">
+              Descartar
+            </button>
+          )}
+        </div>
+      )}
       <div className="h-14 min-h-[56px] max-h-[56px] px-4 border-b border-[#262626] flex items-center justify-between gap-3 bg-[#171717] overflow-hidden">
         <div className="flex items-center gap-2.5 min-w-0">
           <TableIcon className="w-4 h-4 text-[#3ecf8e] flex-shrink-0" />

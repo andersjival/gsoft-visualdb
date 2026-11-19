@@ -28,7 +28,10 @@ export const onRequestGet = async (context: any) => {
     }));
 
     return new Response(JSON.stringify({ success: true, databases }), {
-      headers: { "Content-Type": "application/json" }
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+      }
     });
   } catch (err: any) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {

@@ -22,29 +22,30 @@ function getHeaders(): HeadersInit {
 }
 
 export async function fetchDatabases(): Promise<D1Database[]> {
-  const res = await fetch("/api/databases", { headers: getHeaders() });
+  const res = await fetch(`/api/databases?_t=${Date.now()}`, { headers: getHeaders(), cache: "no-store" });
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.error || "Error al obtener bases de datos");
   return data.databases;
 }
 
 export async function fetchProjects(): Promise<PagesProject[]> {
-  const res = await fetch("/api/projects", { headers: getHeaders() });
+  const res = await fetch(`/api/projects?_t=${Date.now()}`, { headers: getHeaders(), cache: "no-store" });
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.error || "Error al obtener proyectos Pages");
   return data.projects;
 }
 
 export async function fetchTables(dbId: string): Promise<TableSummary[]> {
-  const res = await fetch(`/api/tables?dbId=${encodeURIComponent(dbId)}`, { headers: getHeaders() });
+  const res = await fetch(`/api/tables?dbId=${encodeURIComponent(dbId)}&_t=${Date.now()}`, { headers: getHeaders(), cache: "no-store" });
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.error || "Error al obtener tablas");
   return data.tables;
 }
 
 export async function fetchTableSchema(dbId: string, table: string): Promise<TableColumn[]> {
-  const res = await fetch(`/api/schema?dbId=${encodeURIComponent(dbId)}&table=${encodeURIComponent(table)}`, {
-    headers: getHeaders()
+  const res = await fetch(`/api/schema?dbId=${encodeURIComponent(dbId)}&table=${encodeURIComponent(table)}&_t=${Date.now()}`, {
+    headers: getHeaders(),
+    cache: "no-store"
   });
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.error || "Error al obtener esquema");
@@ -73,9 +74,10 @@ export async function fetchTableData(params: {
     limit: String(params.limit || 25),
     search: params.search || "",
     sort: params.sort || "",
-    order: params.order || "asc"
+    order: params.order || "asc",
+    _t: String(Date.now())
   });
-  const res = await fetch(`/api/table-data?${query.toString()}`, { headers: getHeaders() });
+  const res = await fetch(`/api/table-data?${query.toString()}`, { headers: getHeaders(), cache: "no-store" });
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.error || "Error al obtener datos de tabla");
   return data;

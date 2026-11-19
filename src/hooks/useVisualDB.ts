@@ -140,7 +140,16 @@ export function useVisualDB() {
     if (selectedDb && selectedTable) loadTableData();
   }, [selectedDb, selectedTable, page, limit, search, sortCol, sortOrder, loadTableData]);
 
-  // Revalidación automática al enfocar o volver a la pestaña (Solución 1)
+  const refreshTablesSummary = useCallback(async (dbId?: string) => {
+    const id = dbId || selectedDb?.uuid;
+    if (!id) return;
+    try {
+      const tbls = await fetchTables(id);
+      setTables(tbls);
+    } catch {}
+  }, [selectedDb]);
+
+  // Revalidación automática al enfocar o volver a la pestaña (Solución 1 + Bypass Cache + Refresh Conteo)
   useEffect(() => {
     let lastRevalidation = 0;
     const handleRevalidate = () => {
@@ -149,6 +158,7 @@ export function useVisualDB() {
       if (document.visibilityState === "visible" && selectedDb && selectedTable) {
         lastRevalidation = now;
         loadTableData();
+        refreshTablesSummary(selectedDb.uuid);
       }
     };
 
@@ -159,7 +169,7 @@ export function useVisualDB() {
       window.removeEventListener("focus", handleRevalidate);
       document.removeEventListener("visibilitychange", handleRevalidate);
     };
-  }, [selectedDb, selectedTable, loadTableData]);
+  }, [selectedDb, selectedTable, loadTableData, refreshTablesSummary]);
 
   const selectMainDb = () => {
     const main = databases.find(d => d.name === "byfiocr-v2-db") || databases.find(d => d.name === "byfiocr-db");
@@ -178,6 +188,7 @@ export function useVisualDB() {
       setError(null);
       await mutateRow({ dbId: selectedDb.uuid, table: selectedTable, action: "delete", pkColumn: pkCol, pkValue: pkVal });
       await loadTableData();
+      await refreshTablesSummary(selectedDb.uuid);
     } catch (err: any) {
       setError(err.message);
       throw err;

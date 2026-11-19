@@ -73,7 +73,8 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
         <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-thin">
           {databases.map((db) => {
             const isSelected = selectedDb?.uuid === db.uuid;
-            const isMain = db.name === "byfiocr-v2-db" || db.name === "byfiocr-db";
+            const isProduction = db.name === "byfiocr-v2-db";
+            const isLegacy = db.name === "byfiocr-db";
             const isAi = db.name === "byfio-agent-db" || db.name.includes("agent");
             const shortSize = formatShortSize(db.file_size);
 
@@ -102,9 +103,14 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
                     ({shortSize})
                   </span>
                 )}
-                {isMain && (
-                  <span className="text-[10px] bg-emerald-950/60 text-emerald-300 border border-emerald-800/40 px-1 py-0.2 rounded font-mono">
-                    Principal
+                {isProduction && (
+                  <span className="text-[10px] bg-emerald-950/60 text-emerald-300 border border-emerald-800/40 px-1 py-0.2 rounded font-mono font-semibold">
+                    En Vivo
+                  </span>
+                )}
+                {isLegacy && (
+                  <span className="text-[10px] bg-amber-950/60 text-amber-300 border border-amber-800/40 px-1 py-0.2 rounded font-mono">
+                    Legacy
                   </span>
                 )}
                 {isAi && (

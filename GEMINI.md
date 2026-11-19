@@ -6,14 +6,12 @@
 - **Cuenta:** Georgeandersmail (`01514e27c0cdd221efd91900be83fb16`)
 - **Código de Acceso:** `Geosoft777$$$` (Tokenizado con Web Crypto HMAC-SHA256)
 
-## 🚀 Comando de Despliegue en Vivo
+## 🚀 Comando Universal de Despliegue en Vivo (Estándar Obligatorio)
+Tras cualquier modificación aprobada ejecutar obligatoriamente:
 ```powershell
-npm run build
-$claves = Get-Content "CLAVES GEORGEANDERSMAIL.txt" -Raw
-$token = [regex]::Match($claves, 'Tu token de API:\s*([^\r\n]+)').Groups[1].Value.Trim()
-$cuenta = [regex]::Match($claves, 'ID de cuenta:\s*([^\r\n]+)').Groups[1].Value.Trim()
-$env:CLOUDFLARE_API_TOKEN = $token
-$env:CLOUDFLARE_ACCOUNT_ID = $cuenta
-npx wrangler pages deploy dist --project-name=gsoft-visualdb
+npm run deploy:live
 git add -A; git commit -m "feat: actualización visualdb"; git push origin main
 ```
+
+> [!CAUTION] Blindaje Anti-Despliegue Cruzado
+> En este directorio (`GSOFT-VISUALDB`) el ÚNICO proyecto permitido de Cloudflare Pages es `gsoft-visualdb`. Queda estrictamente prohibido ejecutar comandos con `--project-name=byfiocr` o cualquier otro proyecto ajeno desde esta carpeta. El script `npm run deploy:live` contiene validación atómica que previene cualquier ejecución en carpetas equivocadas.

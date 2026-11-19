@@ -13,7 +13,13 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ---
 
-### Versión 1.10.0 — Soporte de Tabla Física Relacional registered_users (D1 V2)
+### Versión 1.11.0 — Blindaje Anti-Despliegue Cruzado & Resiliencia Visual
+- **Prevención de Despliegues Cruzados (`scripts/deploy.cjs` & `wrangler.toml`)**:
+  - Incorporación de `wrangler.toml` oficial con asignación estricta de `name = "gsoft-visualdb"`.
+  - Nuevo script `scripts/deploy.cjs` y comando `npm run deploy:live` con validación atómica obligatoria de `package.json.name === "gsoft-visualdb"`, bloqueando ejecuciones desde directorios ajenos.
+  - Actualización de directivas en [`GEMINI.md`](file:///c:/Users/User/Desktop/GeoSoft/CUENTA%20ANDERSJIVAL/CLIENTES%20WEBS/GSOFT-VISUALDB/GEMINI.md) para estandarizar `npm run deploy:live`.
+- **Resiliencia y Visibilidad de Errores en UI (`src/components/TableView.tsx`)**:
+  - Despliegue de banner de error visible en pantalla incluso cuando no exista una tabla seleccionada (`!tableName`), garantizando que cualquier fallo de red o autenticación API sea visible de inmediato.
 - **Corrección de Carga de Usuarios en `byfiocr-v2-db` (`functions/api/table-data.ts`)**:
   - Eliminación del secuestro incondicional de `registered_users` hacia `site_metrics` (`app_registered_users`), permitiendo consultar directamente la tabla relacional física de D1 con sus 10 columnas maestras (`id`, `nombre_completo`, `email`, `telefono`, `direccion`, `notas`, `password_hash`, `activo`, `fecha_registro`, `ultimo_login`).
   - Mantenimiento de fallback retrocompatible a `site_metrics` únicamente para bases de datos heredadas (V1) donde no exista como tabla física en SQLite.

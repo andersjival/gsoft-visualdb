@@ -52,10 +52,7 @@ export const onRequestGet = async (context: any) => {
     }
 
     return new Response(JSON.stringify({ success: true, tables }), {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
-      }
+      headers: { "Content-Type": "application/json" }
     });
   } catch (err: any) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {

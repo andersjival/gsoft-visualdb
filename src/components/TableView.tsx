@@ -42,9 +42,21 @@ export const TableView: React.FC<TableViewProps> = ({
 
   if (!tableName) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-12 text-neutral-500 bg-[#121212]">
-        <TableIcon className="w-10 h-10 mb-2 text-neutral-600" />
-        <p className="text-sm">Selecciona una tabla en el menú lateral</p>
+      <div className="flex-1 flex flex-col min-w-0 bg-[#121212] overflow-hidden border-t sm:border-t-0 sm:border-l border-[#262626]">
+        {error && (
+          <div className="bg-rose-950/90 border-b border-rose-800 text-rose-200 px-4 py-2 text-xs flex items-center justify-between gap-2 z-20">
+            <span className="font-mono truncate">{error}</span>
+            {onClearError && (
+              <button onClick={onClearError} className="text-rose-300 hover:text-white text-xs font-semibold px-2 py-0.5 rounded bg-rose-900/60 border border-rose-700/50 flex-shrink-0">
+                Descartar
+              </button>
+            )}
+          </div>
+        )}
+        <div className="flex-1 flex flex-col items-center justify-center p-12 text-neutral-500">
+          <TableIcon className="w-10 h-10 mb-2 text-neutral-600" />
+          <p className="text-sm">Selecciona una tabla en el menú lateral</p>
+        </div>
       </div>
     );
   }

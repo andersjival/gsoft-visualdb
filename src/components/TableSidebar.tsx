@@ -73,17 +73,17 @@ export const TableSidebar: React.FC<TableSidebarProps> = ({
             <button
               onClick={onOpenVentasDirectly}
               className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition ${
-                selectedTable === "ventas"
+                selectedTable === "orders" || selectedTable === "ventas"
                   ? "bg-[#3ecf8e]/20 text-[#3ecf8e] border border-[#3ecf8e]/50"
                   : "bg-[#1c1c1c] hover:bg-[#222] text-neutral-300 border border-[#262626]"
               }`}
             >
               <div className="flex items-center gap-2">
                 <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Ventas por Usuario</span>
+                <span>Pedidos (orders)</span>
               </div>
               <span className="text-[10px] bg-[#292929] px-1.5 py-0.2 rounded font-mono text-neutral-400">
-                user_id
+                ventas
               </span>
             </button>
           )}

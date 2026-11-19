@@ -127,7 +127,7 @@ export const App: React.FC = () => {
               selectedTable={db.selectedTable}
               onSelectTable={(t) => switchTableCleanly(t)}
               onOpenUsersDirectly={(db.selectedDb?.name === "byfiocr-v2-db" || db.selectedDb?.name === "byfiocr-db") ? () => switchTableCleanly("registered_users") : undefined}
-              onOpenVentasDirectly={(db.selectedDb?.name === "byfiocr-v2-db" || db.selectedDb?.name === "byfiocr-db") ? () => switchTableCleanly("ventas") : undefined}
+              onOpenVentasDirectly={(db.selectedDb?.name === "byfiocr-v2-db" || db.selectedDb?.name === "byfiocr-db") ? () => switchTableCleanly("orders") : undefined}
               loading={db.loadingTables}
             />
         <TableView
@@ -159,7 +159,7 @@ export const App: React.FC = () => {
           }}
           onInspectJson={(title, data) => setJsonModal({ title, data })}
           onCellSave={handleCellSave}
-          onFilterByUser={(userId) => { db.setSelectedTable("ventas"); db.setSearch(userId); db.setPage(1); }}
+          onFilterByUser={(userId) => { db.setSelectedTable("orders"); db.setSearch(userId); db.setPage(1); }}
         />
       </div>
       </>

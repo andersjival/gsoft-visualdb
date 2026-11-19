@@ -13,6 +13,16 @@ Cualquier funcionalidad registrada aquí está blindada: ninguna IA puede elimin
 
 ---
 
+### Versión 1.12.0 — Unificación de Pedidos en Orders y Eliminación de Vista Ventas
+- **Reconfiguración de Accesos Directos a `orders`**:
+  - `src/App.tsx`: redirección del acceso rápido `onOpenVentasDirectly` y del filtro por cliente `onFilterByUser` directamente hacia la tabla física `orders`.
+  - `src/components/TableSidebar.tsx`: actualización del botón del menú lateral a "Pedidos (orders)" apuntando a la tabla real de pedidos.
+  - `src/components/TableView.tsx`: cálculo dinámico de sumatoria total de facturación (`Total: ₡...`) habilitado para `orders`.
+- **Limpieza de Base de Datos D1**:
+  - Eliminación completa de la vista SQL `ventas` y sus triggers asociados (`trigger_ventas_update`, `trigger_ventas_delete`) en `byfiocr-v2-db` y `byfiocr-db`. Base de datos 100% limpia sin tablas redundantes.
+
+---
+
 ### Versión 1.11.0 — Blindaje Anti-Despliegue Cruzado & Resiliencia Visual
 - **Prevención de Despliegues Cruzados (`scripts/deploy.cjs` & `wrangler.toml`)**:
   - Incorporación de `wrangler.toml` oficial con asignación estricta de `name = "gsoft-visualdb"`.

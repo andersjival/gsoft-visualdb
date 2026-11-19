@@ -33,7 +33,7 @@ export const TableView: React.FC<TableViewProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const totalPages = Math.ceil(totalRows / limit) || 1;
-  const isVentas = tableName === "ventas";
+  const isVentas = tableName === "orders" || tableName === "ventas";
   const ventasTotal = isVentas ? rows.reduce((acc, r) => acc + (Number(r.total) || 0), 0) : 0;
 
   useEffect(() => {
